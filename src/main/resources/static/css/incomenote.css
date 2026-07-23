@@ -1,0 +1,350 @@
+/* ==========================
+   Income Note CSS (Admin) - Đã Điều Chỉnh Lại cho Tông Màu Hoa
+   ========================== */
+
+/* --- RESET & GENERAL --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Nền: Chuyển sang tông hồng nhẹ nhàng hơn, gần với màu kem */
+    background: linear-gradient(135deg, #fffafa 0%, #fff0f5 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: white;
+    border-radius: 15px;
+    /* Shadow nhẹ nhàng hơn, tạo cảm giác 'floating' */
+    box-shadow: 0 8px 16px rgba(255,105,180,0.1);
+}
+
+/* --- HEADER --- */
+h1 {
+    /* Màu Hồng Đậm nhất (tương đương màu nút bấm trên trang chủ) */
+    color: #FF69B4; /* Hot Pink - Màu chủ đạo */
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+/* --- SUMMARY HEADER / SEARCH --- */
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.summary-header h2 {
+    /* Tiêu đề phụ dùng màu nhẹ hơn */
+    color: #FFB6C1; /* Light Pink */
+    font-size: 1.8em;
+}
+
+.search-area-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-area-container input[type="text"] {
+    padding: 8px 15px;
+    border-radius: 25px;
+    /* Border nhẹ nhàng, khi focus mới nổi bật */
+    border: 2px solid #ffc0cb;
+    outline: none;
+    font-size: 16px;
+    width: 120px;
+    transition: border-color 0.3s;
+}
+
+.search-area-container input[type="text"]:focus {
+    border-color: #FF69B4; /* Focus màu hồng tươi */
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    /* Gradient Hồng như nút Đăng nhập */
+    background: linear-gradient(135deg, #FF69B4 0%, #FFC0CB 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255,105,180,0.4); /* Shadow hồng nổi bật */
+}
+
+.btn-secondary {
+    /* Nút phụ chuyển sang tông màu xám ấm hoặc hồng viền */
+    background: white;
+    color: #FF69B4;
+    border: 2px solid #FFC0CB;
+}
+
+.btn-secondary:hover {
+    background: #fffafa; /* Màu nền rất nhạt */
+    color: #ff69b4;
+    border-color: #FF69B4;
+}
+
+/* --- TABLE INCOME NOTE --- */
+.income-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Thêm shadow nhẹ cho bảng */
+}
+
+.income-table th, .income-table td {
+    padding: 12px;
+    border: none; /* Loại bỏ border cứng */
+    border-bottom: 1px solid #ffe4e1; /* Border mỏng màu hồng nhạt */
+}
+
+.income-table th {
+    /* Header table màu nền tương tự box sản phẩm trên trang chủ */
+    background-color: #fff0f5;
+    font-weight: bold;
+    text-align: center;
+    color: #FF69B4;
+    border-bottom: 3px solid #FF69B4 !important; /* Dòng dưới đậm hơn */
+}
+
+.income-table td {
+    text-align: center;
+}
+
+.income-table tr:nth-child(even) td {
+    background-color: #fffafa; /* Hiệu ứng sọc zebra rất nhẹ */
+}
+
+.income-table .flower-name-cell {
+    text-align: left;
+    padding-left: 15px;
+}
+
+/* --- TOTAL BOX --- */
+.total-box {
+    text-align: right;
+    margin-top: 20px;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #FF69B4; /* Màu hồng nổi bật */
+    padding-right: 10px;
+    padding-top: 10px;
+    /* Dùng đường viền nhẹ hơn, thân thiện hơn */
+    border-top: 2px dashed #FFC0CB;
+}
+
+/* --- STATUS COLORS --- */
+.status-success, .text-success {
+    color: #28a745; /* Green - Trông 'chuyên nghiệp' hơn DarkGreen */
+    font-weight: bold;
+}
+
+.status-fail, .text-danger {
+    color: #dc3545; /* Red - Tông đỏ tiêu chuẩn để báo lỗi */
+    font-weight: bold;
+}
+/* ==========================
+   CSS Cho Sidebar Menu Admin (Có Toggle và Logout Top)
+   ========================== */
+
+/* --- Cấu trúc tổng thể --- */
+.main-wrapper {
+    display: flex;
+    min-height: 100vh;
+    transition: all 0.3s; /* Thêm transition để chuyển động mượt mà */
+}
+
+/* --- SIDEBAR (Thanh Menu) --- */
+.sidebar {
+    width: 250px;
+    background-color: #fff0f5;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(255,105,180,0.1);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s; /* Transition cho width */
+    flex-shrink: 0; /* Không co lại khi màn hình nhỏ */
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.sidebar h1 {
+    font-size: 1.5em;
+    color: #FF69B4;
+    margin: 0; /* Xóa margin cũ */
+    transition: opacity 0.3s;
+}
+
+/* Nút Toggle */
+.toggle-btn {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #FF69B4;
+    padding: 5px;
+    transition: transform 0.3s;
+}
+
+.sidebar-menu {
+    flex-grow: 1;
+}
+
+.sidebar .menu-item {
+    display: flex; /* Dùng flex để icon và text thẳng hàng */
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s;
+    background-color: transparent;
+}
+
+.sidebar .menu-item i {
+    margin-right: 10px;
+    color: #FFB6C1;
+    min-width: 20px; /* Đảm bảo icon luôn có chỗ */
+}
+
+.sidebar .menu-item span {
+    transition: opacity 0.3s;
+    white-space: nowrap; /* Ngăn chữ bị ngắt dòng */
+}
+
+/* Hiệu ứng khi hover */
+.sidebar .menu-item:hover {
+    background-color: #ffe4e1;
+    color: #FF69B4;
+}
+
+/* Link đang được chọn (active) */
+.sidebar .menu-item.active {
+    background: linear-gradient(90deg, #FFC0CB 0%, #FF69B4 100%);
+    color: white;
+    box-shadow: 0 4px 8px rgba(255,105,180,0.4);
+}
+.sidebar .menu-item.active i {
+    color: white;
+}
+
+/* Xóa style cũ của sidebar-footer (đã chuyển nút lên top) */
+.sidebar-footer {
+    display: none;
+}
+
+/* --- MAIN CONTENT (Nội dung chính) --- */
+.main-content {
+    flex-grow: 1;
+    padding: 20px 40px;
+    background-color: #fffafa;
+    transition: margin-left 0.3s, padding 0.3s;
+}
+
+/* --- CONTENT HEADER (Tiêu đề và Logout Top) --- */
+.content-header {
+    display: flex;
+    justify-content: space-between; /* Đẩy tiêu đề và nút ra hai đầu */
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 0 0 10px 0; /* Padding dưới để tạo khoảng trống */
+    border-bottom: 1px solid #ffe4e1; /* Đường kẻ mỏng */
+}
+
+.content-header h2 {
+    color: #FF69B4;
+    margin-bottom: 0; /* Xóa margin dưới */
+}
+
+/* Style cho nút Đăng xuất trên Top */
+.logout-btn-top {
+    padding: 8px 15px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    background: white;
+    border: 2px solid #FFC0CB;
+    color: #FF69B4;
+    transition: all 0.3s;
+}
+
+.logout-btn-top:hover {
+    background-color: #FF69B4;
+    color: white;
+    box-shadow: 0 2px 5px rgba(255,105,180,0.3);
+}
+
+/* ==========================
+   CSS Cho Trạng Thái THU GỌN (COLLAPSED)
+   ========================== */
+
+.main-wrapper.collapsed .sidebar {
+    width: 65px; /* Chiều rộng hẹp */
+    padding: 20px 0; /* Giảm padding ngang */
+    align-items: center;
+}
+
+/* Ẩn chữ */
+.main-wrapper.collapsed .sidebar h1,
+.main-wrapper.collapsed .sidebar .menu-item span {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+}
+
+/* Điều chỉnh lại menu item để căn giữa icon */
+.main-wrapper.collapsed .sidebar .menu-item {
+    justify-content: center;
+    padding: 12px 0;
+    margin: 0 auto 8px auto; /* Căn giữa */
+    width: 40px; /* Độ rộng nhỏ hơn */
+}
+
+/* Bỏ margin phải của icon */
+.main-wrapper.collapsed .sidebar .menu-item i {
+    margin-right: 0;
+}
+
+/* Xoay nút toggle */
+.main-wrapper.collapsed .toggle-btn {
+    transform: rotate(180deg);
+}
+
+/* Căn giữa nút toggle trong trạng thái collapsed */
+.main-wrapper.collapsed .sidebar-header {
+    justify-content: center;
+}

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết sản phẩm - Bán Hoa Tươi</title>
+    <link th:href="@{/css/order.css}" rel="stylesheet">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{customer/fragments/common_elements :: header}"></div>
+
+<div class="container">
+    <div class="order-container">
+
+        <!-- Flash Messages -->
+        <div th:if="${successMessage}" class="flash-message flash-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="flash-message flash-error" th:text="${errorMessage}"></div>
+
+        <h1>🌸 Chi tiết sản phẩm</h1>
+
+        <!-- Main Image Display (will be updated by JS) -->
+        <div class="main-image-container">
+            <img id="mainImage" th:src="@{${flower.imagePath}}" alt="Flower Image" class="main-image" />
+        </div>
+
+        <div class="flower-summary">
+            <h3 th:text="${flower.flowerName}"></h3>
+            <p><strong>Danh mục:</strong> <span th:text="${flower.category.categoryName}"></span></p>
+            
+            <div th:if="${session.loggedInUser != null}" class="price-container-detail">
+                <div class="price-original" th:if="${flower.price > 0}">
+                    Giá gốc: <span th:text="${#numbers.formatDecimal(flower.price, 0, 'COMMA', 0, 'POINT')} + 'VNĐ'"></span>
+                </div>
+                <div class="price-discount">
+                    Giá của bạn: <span th:text="${#numbers.formatDecimal(flower.price * 0.9, 0, 'COMMA', 0, 'POINT')} + 'VNĐ'"></span>
+                </div>
+                <div class="discount-info">🎉 Giảm 10% cho thành viên</div>
+            </div>
+            <div th:if="${session.loggedInUser == null}" class="price-container-detail">
+                <div class="price-display" th:text="${#numbers.formatDecimal(flower.price, 0, 'COMMA', 0, 'POINT')} + 'VNĐ'"></div>
+                <div class="price-note">💡 Đăng nhập để nhận giảm giá 10%</div>
+            </div>
+
+            <div class="stock-info" style="margin-top: 10px; font-size: 0.9em;">
+                <span th:if="${flower.stock > 0}" class="stock-badge in-stock" th:text="'Còn ' + ${flower.stock} + ' sản phẩm'"></span>
+                <span th:if="${flower.stock <= 0}" class="stock-badge out-of-stock">Hết hàng</span>
+            </div>
+        </div>
+
+        <div class="product-description" th:if="${flower.description != null and !flower.description.isEmpty()}">
+            <h3>📝 Mô tả chi tiết</h3>
+            <p th:text="${flower.description}"></p>
+        </div>
+
+        <!-- Shared Quantity and Style Selection -->
+        <div class="shared-options">
+            <div class="form-group">
+                <label for="quantity">Số lượng <span class="required">*</span></label>
+                <div class="quantity-selector">
+                    <button type="button" class="qty-btn" onclick="decreaseQuantity()">-</button>
+                    <input type="number" id="quantity" value="1" min="1" th:attr="max=${flower.stock > 0 ? flower.stock : 1}" onchange="updateHiddenFields()" required>
+                    <button type="button" class="qty-btn" onclick="increaseQuantity()">+</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Kiểu dáng</label>
+                <div class="style-selector">
+                    <!-- Main Image as a style -->
+                    <label class="style-option">
+                        <input type="radio" name="style" th:value="${flower.imagePath}" onchange="updateStyleSelection(this)" checked>
+                        <img th:src="@{${flower.imagePath}}" alt="Kiểu dáng 1">
+                    </label>
+                    <!-- Additional Images as styles -->
+                    <label th:each="img : ${additionalImages}" class="style-option">
+                        <input type="radio" name="style" th:value="${img}" onchange="updateStyleSelection(this)">
+                        <img th:src="@{${img}}" alt="Kiểu dáng khác">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons Group -->
+        <div class="action-buttons-group">
+            <!-- Add to Cart Form -->
+            <form th:action="@{/customer/cart/add}" method="post" class="action-form">
+                <input type="hidden" name="flowerId" th:value="${flower.flowerId}" />
+                <input type="hidden" name="quantity" id="cartQuantity" value="1" />
+                <input type="hidden" name="style" id="cartStyle" th:value="${flower.imagePath}" />
+                <button type="submit" class="btn btn-secondary" th:disabled="${flower.stock <= 0}">Thêm vào giỏ hàng</button>
+            </form>
+
+            <!-- Buy Now Form (redirects to details page) -->
+            <form th:action="@{/customer/buy-now-details}" method="post" class="action-form">
+                <input type="hidden" name="flowerId" th:value="${flower.flowerId}" />
+                <input type="hidden" name="quantity" id="buyNowQuantity" value="1" />
+                <input type="hidden" name="style" id="buyNowStyle" th:value="${flower.imagePath}" />
+                <button type="submit" class="btn btn-primary" th:disabled="${flower.stock <= 0}">Mua ngay</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{customer/fragments/common_elements :: footer}"></div>
+
+<script>
+    // Sync shared quantity and style to hidden inputs of both forms
+    function updateHiddenFields() {
+        const quantity = document.getElementById('quantity').value;
+        const selectedStyle = document.querySelector('input[name="style"]:checked').value;
+
+        document.getElementById('cartQuantity').value = quantity;
+        document.getElementById('cartStyle').value = selectedStyle;
+        document.getElementById('buyNowQuantity').value = quantity;
+        document.getElementById('buyNowStyle').value = selectedStyle;
+    }
+
+    // Update main image when a style is selected
+    function updateStyleSelection(radio) {
+        document.getElementById('mainImage').src = radio.value;
+        updateHiddenFields();
+    }
+
+    // Attach event listeners
+    document.getElementById('quantity').addEventListener('change', updateHiddenFields);
+    document.getElementById('quantity').addEventListener('input', updateHiddenFields);
+
+    // Initial sync on page load
+    window.addEventListener('DOMContentLoaded', updateHiddenFields);
+
+    function increaseQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        const maxStock = parseInt(quantityInput.getAttribute('max') || '999');
+        let currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue < maxStock) {
+            quantityInput.value = currentValue + 1;
+            updateHiddenFields();
+        } else {
+            alert('Số lượng không được vượt quá số lượng tồn kho!');
+        }
+    }
+
+    function decreaseQuantity() {
+        const quantityInput = document.getElementById('quantity');
+        let currentValue = parseInt(quantityInput.value) || 1;
+        if (currentValue > 1) {
+            quantityInput.value = currentValue - 1;
+            updateHiddenFields();
+        }
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,216 @@
+/* =================================================================== */
+/*                         GLOBAL & HEADER STYLES                    */
+/* =================================================================== */
+
+/* Reset default browser margin to fix header gaps */
+body {
+    margin: 0 !important;
+}
+
+.main-header {
+    background-color: #ffffff; /* Ensure solid background */
+    padding: 15px 0;
+    border-bottom: 1px solid #f0e4e8;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    position: sticky; /* Make header stick to the top */
+    top: 0;
+    z-index: 1000; /* Ensure header is on top of other content */
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    gap: 20px;
+}
+
+.logo-container {
+    flex-shrink: 0;
+}
+
+.logo-container .logo-link {
+    text-decoration: none;
+    color: #333;
+}
+
+.logo-container h1 {
+    margin: 0;
+    font-size: 1.8em;
+    color: #e91e63;
+}
+
+.logo-container .text-muted {
+    margin: 0;
+    font-size: 0.9em;
+    color: #757575;
+}
+
+/* Header Search Section */
+.header-search-section {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.header-search-form {
+    display: flex;
+    width: 100%;
+    max-width: 400px;
+}
+
+.header-search-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #f8bbd0;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.header-search-input:focus {
+    border-color: #e91e63;
+}
+
+.header-search-btn {
+    border-radius: 0 5px 5px 0;
+    border-left: none;
+}
+
+.user-actions-container {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-actions-container .user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-actions-container .user-info span {
+    font-size: 1em;
+}
+
+.user-actions-container .btn {
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.user-actions-container .btn-primary {
+    background-color: #e91e63;
+    color: #ffffff;
+    border-color: #e91e63;
+}
+
+.user-actions-container .btn-primary:hover {
+    background-color: #d81b60;
+}
+
+.user-actions-container .btn-secondary {
+    background-color: #fce4ec;
+    color: #c2185b;
+    border-color: #f8bbd0;
+}
+
+.user-actions-container .btn-secondary:hover {
+    background-color: #f8bbd0;
+}
+
+/* Cart Icon Styles */
+.cart-icon-link {
+    position: relative;
+    text-decoration: none;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.cart-item-count {
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    background-color: #e91e63;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 0.6em;
+    font-weight: bold;
+}
+
+
+/* =================================================================== */
+/*                         FOOTER STYLES                           */
+/* =================================================================== */
+
+.main-footer {
+    background-color: #fff5f7;
+    color: #555;
+    padding: 30px 0 0 0;
+    margin-top: 40px;
+    border-top: 1px solid #fce4ec;
+    width: 100%;
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.footer-column {
+    flex: 1;
+    min-width: 250px;
+}
+
+.footer-column h4 {
+    color: #e91e63;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.footer-column p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+}
+
+.social-links {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.social-links .social-icon {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s ease;
+}
+
+.social-links .social-icon:hover {
+    transform: scale(1.1);
+}
+
+.footer-bottom {
+    background-color: #f8eef1;
+    text-align: center;
+    padding: 15px 0;
+    margin-top: 20px;
+    font-size: 0.9em;
+}
+
+.footer-bottom p {
+    margin: 0;
+}

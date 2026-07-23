@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link th:href="@{/css/incomenote.css}" rel="stylesheet">
+</head>
+<body>
+
+<div class="main-wrapper">
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>ADMIN MODE</h1>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <a th:href="@{/admin/dashboard}" class="menu-item active">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/orders}" class="menu-item">
+                <i class="fas fa-shopping-cart"></i> <span>ORDERS</span>
+            </a>
+            <a th:href="@{/admin/flowers}" class="menu-item">
+                <i class="fas fa-edit"></i> <span>ADJUST FLOWERS</span>
+            </a>
+            <a th:href="@{/income/note}" class="menu-item">
+                <i class="fas fa-clipboard-list"></i> <span>INCOME NOTE</span>
+            </a>
+        </div>
+
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Chào mừng đến với Trang Quản Lý</h2>
+            <a th:href="@{/logout}" class="btn btn-secondary logout-btn-top">
+                 Đăng xuất
+            </a>
+        </div>
+
+        <p>Đây là khu vực hiển thị các thông tin tổng quan, biểu đồ, v.v...</p>
+
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.querySelector('.main-wrapper').classList.toggle('collapsed');
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử đơn hàng</title>
+    <link rel="stylesheet" th:href="@{/css/order-history.css}">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{customer/fragments/common_elements :: header}"></div>
+
+<div class="container">
+    <section class="order-section">
+        <div class="order-table-wrapper">
+            <table class="order-table">
+                <thead>
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Chi tiết sản phẩm</th>
+                    <th>Tổng tiền</th>
+                    <th>Ngày đặt</th>
+                    <th>Ngày giao</th>
+                    <th>Trạng thái</th>
+                    <th>Ghi chú</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td th:text="${order.orderId}"></td>
+                    <td>
+                        <ul class="product-list">
+                            <li th:each="item : ${order.items}">
+                                <img th:src="@{${item.selectedStyle != null ? item.selectedStyle : item.flower.imagePath}}" alt="Product Image" class="product-thumb">
+                                <div class="product-info">
+                                    <span th:text="${item.flower.flowerName} + ' (x' + ${item.quantity} + ')'"></span>
+                                    <br>
+                                    <small style="color: #888;" th:text="${#numbers.formatDecimal(item.priceAtPurchase, 0, 'COMMA', 0, 'POINT')} + ' đ'"></small>
+                                </div>
+                            </li>
+                        </ul>
+                    </td>
+                    <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></td>
+                    <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy')}"></td>
+                    <td th:text="${#temporals.format(order.deliveryDate, 'dd-MM-yyyy')}"></td>
+                    <td th:text="${order.paymentStatus}"
+                        th:classappend="'status-' + ${order.paymentStatus.toLowerCase()}"></td>
+                    <td th:text="${order.note}"></td>
+                </tr>
+
+                <tr th:if="${orders.size() == 0}">
+                    <td colspan="7" class="no-orders">Bạn chưa có đơn hàng nào.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{customer/fragments/common_elements :: footer}"></div>
+
+</body>
+</html>

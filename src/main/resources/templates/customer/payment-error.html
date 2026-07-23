@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lỗi thanh toán - Bán Hoa Tươi</title>
+    <link th:href="@{/css/payment-error.css}" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="error-card">
+            <div class="error-icon">❌</div>
+            <h1>Thanh toán thất bại</h1>
+            <div class="error-message" th:text="${message}">Có lỗi xảy ra khi xử lý thanh toán</div>
+            
+            <div class="btn-group">
+                <a th:href="@{/customer/home}" class="btn btn-primary">Về trang chủ</a>
+                <a th:if="${order != null}" 
+                   th:href="@{/customer/payment/{id}(id=${order.orderId})}" 
+                   class="btn btn-secondary">Thử lại thanh toán</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

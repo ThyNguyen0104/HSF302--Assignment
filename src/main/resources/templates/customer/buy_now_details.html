@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin đặt hàng - Bán Hoa Tươi</title>
+    <link th:href="@{/css/order.css}" rel="stylesheet">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{customer/fragments/common_elements :: header}"></div>
+
+<div class="container">
+    <div class="order-container">
+        <h1>📝 Thông tin đặt hàng</h1>
+
+        <!-- Order Summary -->
+        <div class="flower-summary">
+            <p><strong>Sản phẩm:</strong> <span th:text="${flower.flowerName}"></span></p>
+            <p><strong>Số lượng:</strong> <span th:text="${quantity}"></span></p>
+            <p><strong>Kiểu dáng:</strong> <img th:src="@{${style}}" alt="Style" style="width: 40px; height: 40px; vertical-align: middle;"></p>
+        </div>
+
+        <!-- Buy Now Form -->
+        <form th:action="@{/customer/order/{id}(id=${flower.flowerId})}" 
+              th:object="${order}" 
+              method="post">
+
+            <!-- Hidden fields for quantity and style -->
+            <input type="hidden" name="quantity" th:value="${quantity}" />
+            <input type="hidden" name="style" th:value="${style}" />
+
+            <div class="form-group">
+                <label for="customerName">Họ và tên <span class="required">*</span></label>
+                <input type="text" id="customerName" th:field="*{customerName}" placeholder="Nhập họ và tên của bạn" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Số điện thoại <span class="required">*</span></label>
+                <input type="tel" id="phone" th:field="*{phone}" placeholder="Nhập số điện thoại (VD: 0901234567)" required>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Địa chỉ giao hàng <span class="required">*</span></label>
+                <input type="text" id="address" th:field="*{address}" placeholder="Nhập địa chỉ giao hàng đầy đủ" required>
+            </div>
+
+            <div class="form-group">
+                <label for="deliveryDate">Ngày giao hàng <span class="required">*</span></label>
+                <input type="date" id="deliveryDate" th:field="*{deliveryDate}" th:min="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="note">Ghi chú (tùy chọn)</label>
+                <textarea id="note" th:field="*{note}" placeholder="Nhập ghi chú hoặc yêu cầu đặc biệt (nếu có)..."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Xác nhận và Thanh toán</button>
+        </form>
+
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{customer/fragments/common_elements :: footer}"></div>
+
+</body>
+</html>

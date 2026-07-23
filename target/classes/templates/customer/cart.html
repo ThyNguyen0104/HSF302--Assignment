@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng - Bán Hoa Tươi</title>
+    <link th:href="@{/css/cart.css}" rel="stylesheet">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{customer/fragments/common_elements :: header}"></div>
+
+<div class="container">
+    <div class="cart-container">
+        <h1>🛒 Giỏ hàng của bạn</h1>
+
+        <div th:if="${cartItems == null or cartItems.isEmpty()}" class="empty-cart">
+            <p>Giỏ hàng của bạn đang trống.</p>
+            <a th:href="@{/customer/home}" class="btn btn-primary">Tiếp tục mua sắm</a>
+        </div>
+
+        <form th:if="${cartItems != null and !cartItems.isEmpty()}" th:action="@{/customer/checkout}" method="post">
+            <div class="cart-header">
+                <div class="select-all-container">
+                    <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                    <label for="selectAll">Chọn tất cả</label>
+                </div>
+                <span>Sản phẩm</span>
+                <span>Đơn giá</span>
+                <span>Số lượng</span>
+                <span>Thành tiền</span>
+                <span>Xóa</span>
+            </div>
+
+            <div class="cart-items-list">
+                <div th:each="item : ${cartItems}" class="cart-item"
+                     th:with="unitPrice=${session.loggedInUser != null ? item.flower.price * 0.9 : item.flower.price},
+                                itemTotal=${unitPrice * item.quantity}">
+                    <div class="cart-item-select">
+                        <input type="checkbox" name="selectedItems" th:value="${item.id}" class="item-checkbox" onclick="updateSelectAll()">
+                    </div>
+                    <div class="cart-item-product">
+                        <img th:src="@{${item.selectedStyle}}" alt="Flower Style Image">
+                        <div>
+                            <span th:text="${item.flower.flowerName}"></span>
+                            <br>
+                            <small style="color: #888;">Kiểu dáng: <span th:text="${item.selectedStyle.substring(item.selectedStyle.lastIndexOf('/') + 1)}"></span></small>
+                        </div>
+                    </div>
+                    <div class="cart-item-price">
+                        <span th:text="${#numbers.formatDecimal(unitPrice, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                        <br th:if="${session.loggedInUser != null}">
+                        <span th:if="${session.loggedInUser != null}" style="text-decoration: line-through; font-size: 0.8em; color: #888;"
+                              th:text="${#numbers.formatDecimal(item.flower.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                    </div>
+                    <div class="cart-item-quantity">
+                        <input type="number" th:value="${item.quantity}" min="1" th:max="${item.flower.stock}" class="quantity-input" 
+                               th:onchange="|window.location.href='@{/customer/cart/update(cartItemId=${item.id}, quantity=this.value)}'|">
+                    </div>
+                    <div class="cart-item-total">
+                        <span th:text="${#numbers.formatDecimal(itemTotal, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                    </div>
+                    <div class="cart-item-remove">
+                        <a th:href="@{/customer/cart/remove(cartItemId=${item.id})}" class="btn-remove">🗑️</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Tổng tiền:</span>
+                    <span class="total-amount" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                </div>
+                <button type="submit" class="btn btn-primary btn-checkout">Tiến hành thanh toán</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{customer/fragments/common_elements :: footer}"></div>
+
+<script>
+    function toggleAll(source) {
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+        for (let i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = source.checked;
+        }
+    }
+
+    function updateSelectAll() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const allItemCheckboxes = document.querySelectorAll('.item-checkbox');
+        const totalItems = allItemCheckboxes.length;
+        let checkedItems = 0;
+        for (let i = 0; i < totalItems; i++) {
+            if (allItemCheckboxes[i].checked) {
+                checkedItems++;
+            }
+        }
+        selectAllCheckbox.checked = totalItems > 0 && checkedItems === totalItems;
+    }
+</script>
+
+</body>
+</html>

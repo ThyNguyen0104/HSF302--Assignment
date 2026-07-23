@@ -1,0 +1,123 @@
+/* =================================================================== */
+/*                         CART PAGE STYLES                          */
+/* =================================================================== */
+
+.cart-container {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cart-container h1 {
+    color: #e91e63;
+    margin-bottom: 20px;
+}
+
+.empty-cart {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.cart-header {
+    display: grid;
+    grid-template-columns: 150px 3fr 1fr 1fr 1fr 80px;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.select-all-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-items-list {
+    border-top: 1px solid #eee;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 40px 3fr 1fr 1fr 1fr 80px;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    gap: 15px;
+}
+
+.cart-item-select {
+    display: flex;
+    justify-content: center;
+}
+
+.cart-item-product {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.cart-item-product img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.cart-item-price, .cart-item-total {
+    text-align: right;
+}
+
+.cart-item-quantity {
+    display: flex;
+    justify-content: center;
+}
+
+.quantity-input {
+    width: 60px;
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.cart-item-remove {
+    text-align: center;
+}
+
+.btn-remove {
+    color: #e91e63;
+    text-decoration: none;
+    font-size: 1.2em;
+}
+
+.cart-summary {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #e91e63;
+    text-align: right;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+}
+
+.total-amount {
+    font-weight: bold;
+    color: #e91e63;
+    margin-left: 10px;
+}
+
+.btn-checkout {
+    padding: 12px 25px;
+    font-size: 1.1em;
+}

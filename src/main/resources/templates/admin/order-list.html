@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Đơn Hàng</title>
+    <link rel="stylesheet" th:href="@{/css/order-admin.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <script src="https://kit.fontawesome.com/a2e0b1f0f1.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="main-wrapper" id="wrapper">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>ADMIN MODE</h1>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <a th:href="@{/admin/dashboard}" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/orders}" class="menu-item active">
+                <i class="fas fa-shopping-cart"></i> <span>ORDERS</span>
+            </a>
+            <a th:href="@{/admin/flowers}" class="menu-item">
+                <i class="fas fa-edit"></i> <span>ADJUST FLOWERS</span>
+            </a>
+            <a th:href="@{/income/note}" class="menu-item">
+                <i class="fas fa-clipboard-list"></i> <span>INCOME NOTE</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Quản lý Đơn Hàng</h2>
+            <a th:href="@{/logout}" class="logout-btn-top">Đăng xuất</a>
+        </div>
+
+        <form th:action="@{/admin/orders}" method="get" class="filter-form">
+            <label for="status">Lọc theo trạng thái:</label>
+            <select id="status" name="status">
+                <option value="" th:selected="${status == null or status == ''}">Tất cả</option>
+                <option value="PENDING" th:selected="${status == 'PENDING'}">Đang chờ</option>
+                <option value="PAID" th:selected="${status == 'PAID'}">Đã thanh toán</option>
+                <option value="FAILED" th:selected="${status == 'FAILED'}">Thất bại</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Áp dụng</button>
+            <a th:href="@{/admin/orders}" class="btn btn-secondary">Đặt lại</a>
+        </form>
+
+        <table class="order-table">
+            <thead>
+            <tr>
+                <th>Mã</th>
+                <th>Chi tiết sản phẩm</th>
+                <th>Khách hàng</th>
+                <th>Số điện thoại</th>
+                <th>Địa chỉ</th>
+                <th>Ghi chú</th>
+                <th>Ngày đặt</th>
+                <th>Ngày giao</th>
+                <th>Tổng tiền</th>
+                <th>Trạng thái thanh toán</th>
+                <th>Mã giao dịch</th>
+                <th>Thao tác</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td th:text="${order.orderId}"></td>
+                <td>
+                    <ul class="product-list-admin">
+                        <li th:each="item : ${order.items}">
+                            <img th:src="@{${item.selectedStyle != null ? item.selectedStyle : item.flower.imagePath}}" alt="Hình hoa" class="flower-thumb">
+                            <div class="product-info-admin">
+                                <span th:text="${item.flower.flowerName} + ' (x' + ${item.quantity} + ')'"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </td>
+                <td th:text="${order.customerName}"></td>
+                <td th:text="${order.phone}"></td>
+                <td th:text="${order.address}"></td>
+                <td th:text="${order.note}"></td>
+                <td th:text="${#temporals.format(order.orderDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${#temporals.format(order.deliveryDate, 'dd-MM-yyyy')}"></td>
+                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></td>
+                <td>
+                    <span th:text="${order.paymentStatus}"
+                          th:classappend="'status-' + ${order.paymentStatus != null ? order.paymentStatus.toLowerCase() : 'pending'}"></span>
+                </td>
+                <td th:text="${order.transactionId}"></td>
+
+                <td class="action-links">
+                    <div class="action-btns">
+                        <a th:href="@{'/admin/orders/edit/' + ${order.orderId}}" class="btn btn-primary">Chi tiết</a>
+                        <a th:href="@{'/admin/orders/delete/' + ${order.orderId}}"
+                           class="btn btn-secondary"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?');">
+                            Xóa
+                        </a>
+                    </div>
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('wrapper').classList.toggle('collapsed');
+    }
+</script>
+</body>
+</html>

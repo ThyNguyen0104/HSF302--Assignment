@@ -1,0 +1,277 @@
+/* ==========================
+   Flower Admin CSS (tông hồng hoa, sidebar chuẩn)
+   ========================== */
+
+/* --- RESET & BODY --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #fffafa 0%, #fff0f5 100%);
+    color: #333;
+    min-height: 100vh;
+}
+
+/* --- MAIN LAYOUT --- */
+.main-wrapper {
+    display: flex;
+    min-height: 100vh;
+    transition: all 0.3s ease;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 250px;
+    background-color: #fff0f5;
+    padding: 20px;
+    box-shadow: 2px 0 8px rgba(255,105,180,0.1);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.sidebar-header h1 {
+    font-size: 1.3em;
+    color: #FF69B4;
+}
+
+.toggle-btn {
+    background: none;
+    border: none;
+    color: #FF69B4;
+    font-size: 1.4em;
+    cursor: pointer;
+}
+
+/* --- MENU ITEMS --- */
+.sidebar-menu {
+    flex-grow: 1;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.menu-item i {
+    margin-right: 10px;
+    color: #FFB6C1;
+    min-width: 20px;
+}
+
+.menu-item:hover {
+    background-color: #ffe4e1;
+    color: #FF69B4;
+}
+
+.menu-item.active {
+    background: linear-gradient(90deg, #FFC0CB, #FF69B4);
+    color: white;
+    box-shadow: 0 4px 8px rgba(255,105,180,0.3);
+}
+.menu-item.active i {
+    color: white;
+}
+
+/* --- COLLAPSED SIDEBAR --- */
+.main-wrapper.collapsed .sidebar {
+    width: 65px;
+    padding: 20px 0;
+    align-items: center;
+}
+
+.main-wrapper.collapsed .menu-item span,
+.main-wrapper.collapsed .sidebar-header h1 {
+    display: none;
+}
+
+.main-wrapper.collapsed .menu-item {
+    justify-content: center;
+    padding: 12px 0;
+    width: 45px;
+    margin: 0 auto 10px;
+}
+
+.main-wrapper.collapsed .toggle-btn {
+    transform: rotate(180deg);
+}
+
+/* --- MAIN CONTENT --- */
+.main-content {
+    flex-grow: 1;
+    padding: 30px 40px;
+    background-color: #fffafa;
+    transition: margin-left 0.3s;
+}
+
+/* --- CONTENT HEADER --- */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ffe4e1;
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+}
+
+.content-header h2 {
+    color: #FF69B4;
+}
+
+.logout-btn-top, .logout-btn {
+    padding: 8px 15px;
+    border-radius: 25px;
+    background: white;
+    border: 2px solid #FFC0CB;
+    color: #FF69B4;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+.logout-btn-top:hover, .logout-btn:hover {
+    background-color: #FF69B4;
+    color: white;
+}
+
+/* --- TABLE --- */
+.flower-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.flower-table th, .flower-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ffe4e1;
+}
+
+.flower-table th {
+    background-color: #fff0f5;
+    color: #FF69B4;
+    font-weight: bold;
+    border-bottom: 3px solid #FF69B4;
+}
+
+.flower-table tr:nth-child(even) td {
+    background-color: #fffafa;
+}
+
+/* --- BUTTONS --- */
+.btn {
+    padding: 8px 16px;
+    border-radius: 25px;
+    border: none;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #FF69B4, #FFC0CB);
+    color: white;
+}
+
+.btn-secondary {
+    background: white;
+    color: #FF69B4;
+    border: 2px solid #FFC0CB;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255,105,180,0.4);
+}
+
+.btn-secondary:hover {
+    background-color: #fffafa;
+    border-color: #FF69B4;
+}
+
+/* --- FORM STYLE --- */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea,
+input[type="file"] {
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #ffc0cb;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #FF69B4;
+}
+
+.preview-container img {
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(255,105,180,0.2);
+}
+
+.preview-multiple img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.preview-multiple {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.old-image {
+    position: relative;
+    display: inline-block;
+}
+
+.old-image img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.remove-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    line-height: 18px;
+    font-weight: bold;
+}
+

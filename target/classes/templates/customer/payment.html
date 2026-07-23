@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán VNPay - Bán Hoa Tươi</title>
+    <link th:href="@{/css/payment.css}" rel="stylesheet">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{customer/fragments/common_elements :: header}"></div>
+
+<div class="container">
+    <div class="payment-container">
+        <h1>💳 Thanh toán VNPay</h1>
+
+        <div class="order-summary">
+            <h3>Thông tin đơn hàng</h3>
+            <p><strong>Mã đơn hàng:</strong> <span th:text="'DH' + ${order.orderId}"></span></p>
+            <p><strong>Khách hàng:</strong> <span th:text="${order.customerName}"></span></p>
+            <p><strong>Số điện thoại:</strong> <span th:text="${order.phone}"></span></p>
+            <p><strong>Địa chỉ:</strong> <span th:text="${order.address}"></span></p>
+            <p th:if="${order.deliveryDate != null}">
+                <strong>Ngày giao hàng:</strong> 
+                <span th:text="${#temporals.format(order.deliveryDate, 'dd-MM-yyyy')}"></span>
+            </p>
+
+            <!-- Items List -->
+            <div class="payment-items-list">
+                <div th:each="item : ${order.items}" class="payment-item">
+                    <span th:text="${item.flower.flowerName} + ' (x' + ${item.quantity} + ')'"></span>
+                    <span th:text="${#numbers.formatDecimal(item.priceAtPurchase * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                </div>
+            </div>
+
+            <div class="amount-display">
+                Tổng thành tiền: <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+            </div>
+        </div>
+
+        <div class="payment-methods">
+            <!-- QR Code Payment -->
+            <div class="payment-method">
+                <h3>📱 Quét mã QR</h3>
+                <div class="qr-code-container" th:if="${qrCodeBase64 != null}">
+                    <img th:src="${qrCodeBase64}" alt="VNPay QR Code">
+                </div>
+                <div class="instructions">
+                    <h4>Hướng dẫn:</h4>
+                    <ol>
+                        <li>Mở ứng dụng VNPay trên điện thoại</li>
+                        <li>Chọn chức năng quét mã QR</li>
+                        <li>Quét mã QR bên trên</li>
+                        <li>Xác nhận thanh toán</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Payment Link -->
+            <div class="payment-method">
+                <h3>🔗 Thanh toán bằng link</h3>
+                <p class="text-muted">Nhấn vào nút bên dưới để chuyển đến trang thanh toán VNPay</p>
+                <a th:href="${paymentUrl}" target="_blank" class="btn-payment">Thanh toán ngay</a>
+                <div class="instructions">
+                    <h4>Hướng dẫn:</h4>
+                    <ol>
+                        <li>Nhấn nút "Thanh toán ngay"</li>
+                        <li>Chọn phương thức thanh toán trên VNPay</li>
+                        <li>Hoàn tất thủ tục thanh toán</li>
+                        <li>Quay lại trang web để xác nhận</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-note">
+            <p>⚠️ Lưu ý: Sau khi thanh toán thành công, bạn sẽ được chuyển về trang xác nhận tự động.</p>
+            <p>Nếu không tự động chuyển, vui lòng quay lại trang này sau khi hoàn tất thanh toán.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{customer/fragments/common_elements :: footer}"></div>
+
+</body>
+</html>

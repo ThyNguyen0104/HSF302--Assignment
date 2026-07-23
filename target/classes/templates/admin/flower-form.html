@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Thêm / Chỉnh Sửa Hoa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <link rel="stylesheet" th:href="@{/css/flower-admin.css}">
+</head>
+<body>
+<div class="main-wrapper">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>ADMIN MODE</h1>
+      <button class="toggle-btn" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <div class="sidebar-menu">
+      <a th:href="@{/admin/dashboard}" class="menu-item">
+        <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+      </a>
+      <a th:href="@{/admin/orders}" class="menu-item">
+        <i class="fas fa-shopping-cart"></i> <span>ORDERS</span>
+      </a>
+      <a th:href="@{/admin/flowers}" class="menu-item active">
+        <i class="fas fa-edit"></i> <span>ADJUST FLOWERS</span>
+      </a>
+      <a th:href="@{/income/note}" class="menu-item">
+        <i class="fas fa-clipboard-list"></i> <span>INCOME NOTE</span>
+      </a>
+    </div>
+  </div>
+
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <div class="content-header">
+      <h2 th:text="${flower.flowerId == 0} ? '🌺 Thêm Hoa Mới' : '🌸 Chỉnh Sửa Hoa'"></h2>
+      <a th:href="@{/logout}" class="logout-btn-top">Đăng xuất</a>
+    </div>
+
+    <form th:action="@{/admin/flowers/save}" th:object="${flower}" method="post" enctype="multipart/form-data">
+      <input type="hidden" th:field="*{flowerId}">
+      <label>Tên Hoa:</label>
+      <input type="text" th:field="*{flowerName}" required>
+
+      <label>Giá:</label>
+      <input type="number" step="0.01" th:field="*{price}" required>
+
+      <label>Loại Hoa:</label>
+      <select th:field="*{category.categoryId}">
+        <option th:each="c : ${categories}" th:value="${c.categoryId}" th:text="${c.categoryName}"></option>
+      </select>
+
+      <label>Hàng tồn kho:</label>
+      <input type="number" step="1" th:field="*{stock}" required>
+
+      <label>Thông tin mô tả:</label>
+      <textarea th:field="*{description}" rows="3" required></textarea>
+
+      <input type="hidden" name="oldImagePath" th:value="${flower.imagePath}">
+
+      <label>Hình ảnh:</label>
+      <input type="file" name="imageFile" id="imageFile" accept="image/*">
+
+      <div class="preview-container" style="text-align:center;">
+        <img id="previewImage"
+             th:src="${flower.imagePath != null ? flower.imagePath : ''}"
+             alt="Hình ảnh Hoa" width="200" style="display:none;">
+      </div>
+
+      <label>Ảnh bổ sung:</label>
+      <input type="file" name="additionalImageFiles" id="additionalImageFiles" accept="image/*" multiple>
+      <input type="hidden" name="existingAdditionalImages"
+             th:value="${flower.additionalImages}">
+      <div id="additionalPreview" class="preview-multiple">
+        <div th:if="${flower.additionalImages != null}"
+             th:each="path : ${#strings.arraySplit(flower.additionalImages, ',')}">
+          <div class="old-image">
+            <img th:src="@{${path}}" alt="Ảnh cũ">
+            <button type="button" class="remove-btn" onclick="removeOldImage(this, '[[${path}]]')">×</button>
+          </div>
+        </div>
+      </div>
+
+
+
+
+      <div style="text-align:center; margin-top:10px;">
+        <button type="submit" class="btn btn-primary">Lưu</button>
+        <a th:href="@{/admin/flowers}" class="btn btn-secondary">Trở lại</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleSidebar() {
+    document.querySelector('.main-wrapper').classList.toggle('collapsed');
+  }
+
+  const input = document.getElementById('imageFile');
+  const preview = document.getElementById('previewImage');
+  if (preview.getAttribute('src')) preview.style.display = 'block';
+  input.addEventListener('change', e => {
+    const f = e.target.files[0];
+    if (f) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(f);
+    } else preview.style.display = 'none';
+  });
+
+  const multiInput = document.getElementById('additionalImageFiles');
+  const multiPreview = document.getElementById('additionalPreview');
+
+  multiInput.addEventListener('change', e => {
+    for (const file of e.target.files) {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const img = document.createElement("img");
+        img.src = ev.target.result;
+        img.style.width = "100px";
+        img.style.height = "100px";
+        img.style.objectFit = "cover";
+        img.style.margin = "5px";
+        img.style.borderRadius = "10px";
+        img.style.boxShadow = "0 2px 6px rgba(0,0,0,0.2)";
+        multiPreview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  function removeOldImage(button, path) {
+    const container = button.closest('.old-image');
+    container.remove();
+
+    const input = document.querySelector('input[name="existingAdditionalImages"]');
+    let paths = input.value.split(',');
+    paths = paths.filter(p => p.trim() !== path.trim());
+    input.value = paths.join(',');
+  }
+
+</script>
+</body>
+</html>

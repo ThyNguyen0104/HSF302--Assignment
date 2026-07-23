@@ -1,0 +1,161 @@
+/* ==========================
+   CSS Cho Trang Login/Register (Đã tối ưu)
+   ========================== */
+
+/* --- BODY & CONTAINER (Giữ nguyên) --- */
+body {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%); /* Nền gradient hồng cam */
+    font-family: 'Arial', sans-serif;
+}
+
+.login-container {
+    max-width: 400px;
+    padding: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    color: #333;
+    margin: 20px;
+}
+
+.login-container h2 {
+    color: #ff6f61; /* Màu San hô */
+    margin-bottom: 30px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* --- FORM GROUP & INPUT (Giữ nguyên) --- */
+.login-form .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.login-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.login-form input {
+    /* Đã sửa lỗi padding: width: calc(100% - 20px) là thừa nếu đã dùng box-sizing: border-box */
+    width: 100%;
+    padding: 12px 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.login-form input:focus {
+    border-color: #ff6f61;
+    box-shadow: 0 0 0 2px rgba(255, 111, 97, 0.2);
+}
+
+/* --- BUTTONS --- */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.1s;
+    flex-grow: 1;
+    margin: 0 5px;
+    text-align: center;
+    /* Đảm bảo nút đăng ký/quay lại có chiều rộng như nhau */
+}
+
+.btn-primary {
+    background-color: #ff6f61;
+    color: white;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #e05e54;
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Sửa selector cho nút Quay lại/Đăng nhập (sử dụng thẻ <a>) */
+.btn-secondary,
+.btn[href] {
+    background-color: #ccc;
+    color: #333;
+    border: 1px solid #bbb;
+    /* Đồng bộ hóa: thêm class btn-secondary vào thẻ <a> để dễ quản lý */
+}
+
+.btn-secondary:hover,
+.btn[href]:hover {
+    background-color: #bbb;
+    transform: translateY(-1px);
+}
+
+/* --- MESSAGE STYLES (Giữ nguyên) --- */
+.error-message {
+    color: #d9534f;
+    background-color: #fdd;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.success-message {
+    color: #5cb85c;
+    background-color: #dfd;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+/* --- CSS Bổ Sung cho Link Đăng Ký --- */
+
+.register-link-area {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.register-link-area p {
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.btn-register {
+    /* Style nút này khác nút primary/secondary một chút */
+    display: inline-block;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-decoration: none;
+
+    /* Dùng màu nổi bật hơn/khác biệt */
+    background-color: transparent;
+    color: #ff6f61; /* Màu San hô */
+    border: 2px solid #ff6f61;
+    transition: all 0.3s;
+}
+
+.btn-register:hover {
+    background-color: #ff6f61;
+    color: white;
+    transform: translateY(-1px);
+}

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Common head elements can be defined here if needed -->
+</head>
+<body>
+
+    <!-- ================================================================= -->
+    <!--                         HEADER FRAGMENT                           -->
+    <!-- ================================================================= -->
+    <header th:fragment="header" class="main-header">
+        <div class="header-content">
+            <div class="logo-container">
+                <a th:href="@{/customer/home}" class="logo-link">
+                    <h1>🌸 Bán Hoa Tươi</h1>
+                </a>
+                <p class="text-muted">Cửa hàng hoa tươi chất lượng cao</p>
+            </div>
+
+            <!-- Search Form in Header -->
+            <div class="header-search-section">
+                <form th:action="@{/customer/home}" method="get" class="header-search-form">
+                    <input type="text"
+                           name="search"
+                           class="header-search-input"
+                           placeholder="Tìm kiếm hoa..."
+                           th:value="${search}">
+                    <button type="submit" class="btn btn-primary header-search-btn">Tìm kiếm</button>
+                </form>
+            </div>
+
+            <div class="user-actions-container">
+                <!-- Cart Icon -->
+                <a th:href="@{/customer/cart}" class="cart-icon-link">
+                    🛒 <span class="cart-item-count" th:text="${cartItemCount}">0</span>
+                </a>
+
+                <!-- If logged in: show name + links -->
+                <div th:if="${session.loggedInUser != null}" class="user-info">
+                    <span>Xin chào, <b th:text="${session.loggedInUser.userName}">Khách</b></span>
+                    <a th:href="@{/customer/order-history}" class="btn btn-secondary">Lịch sử đơn hàng</a>
+                    <a th:href="@{/logout}" class="btn btn-secondary">Đăng xuất</a>
+                </div>
+
+                <!-- If not logged in: show Login button -->
+                <div th:if="${session.loggedInUser == null}">
+                    <a th:href="@{/login}" class="btn btn-primary">Đăng nhập</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- ================================================================= -->
+    <!--                         FOOTER FRAGMENT (Updated)                 -->
+    <!-- ================================================================= -->
+    <footer th:fragment="footer" class="main-footer">
+        <div class="footer-container">
+            <div class="footer-column">
+                <h4>Về Bán Hoa Tươi</h4>
+                <p>Chúng tôi mang đến những đóa hoa tươi thắm nhất, được lựa chọn cẩn thận và gói ghém bằng cả trái tim, giúp bạn trao gửi yêu thương đến những người quan trọng.</p>
+            </div>
+            <div class="footer-column">
+                <h4>Thông tin liên hệ</h4>
+                <p>📍 123 Đường Hoa, Quận 1, TP.HCM</p>
+                <p>📞 090-123-4567</p>
+                <p>✉️ support@banhoatuoi.com</p>
+            </div>
+            <div class="footer-column">
+                <h4>Theo dõi chúng tôi</h4>
+                <div class="social-links">
+                    <a href="#" target="_blank"><img th:src="@{/images/facebook.png}" alt="Facebook" class="social-icon"></a>
+                    <a href="#" target="_blank"><img th:src="@{/images/instagram.png}" alt="Instagram" class="social-icon"></a>
+                    <a href="#" target="_blank"><img th:src="@{/images/zalo.png}" alt="Zalo" class="social-icon"></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Bán Hoa Tươi. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận đặt hàng - Bán Hoa Tươi</title>
+    <link th:href="@{/css/confirmation.css}" rel="stylesheet">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{customer/fragments/common_elements :: header}"></div>
+
+<!-- Main Content Wrapper -->
+<div class="main-content">
+    <div class="container">
+        <div class="confirmation-card">
+            <div class="success-icon">✅</div>
+            <h1 th:text="${success != null and success == true} ? 'Thanh toán thành công!' : 'Đặt hàng thành công!'">Đặt hàng thành công!</h1>
+            <div class="success-message" th:text="${message} != null ? ${message} : 'Cảm ơn bạn đã đặt hàng tại Bán Hoa Tươi'"></div>
+
+            <div class="order-details">
+                <h3>Thông tin đơn hàng</h3>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Mã đơn hàng:</span>
+                    <span class="detail-value" th:text="'DH' + ${order.orderId}"></span>
+                </div>
+
+                <div th:if="${order.transactionId != null and !order.transactionId.isEmpty()}" class="detail-row">
+                    <span class="detail-label">Mã giao dịch:</span>
+                    <span class="detail-value" th:text="${order.transactionId}"></span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Trạng thái thanh toán:</span>
+                    <span class="detail-value" 
+                          th:style="${order.paymentStatus == 'PAID'} ? 'color: #4caf50; font-weight: bold;' : 'color: #ff9800; font-weight: bold;'"
+                          th:text="${order.paymentStatus == 'PAID'} ? 'Đã thanh toán' : (${order.paymentStatus == 'FAILED'} ? 'Thanh toán thất bại' : 'Chờ thanh toán')">Chờ thanh toán</span>
+                </div>
+
+                <!-- Items List -->
+                <div class="items-summary">
+                    <h4>Chi tiết sản phẩm</h4>
+                    <div th:each="item : ${order.items}" class="detail-row">
+                        <span class="detail-label" th:text="${item.flower.flowerName} + ' (x' + ${item.quantity} + ')'"></span>
+                        <span class="detail-value" th:text="${#numbers.formatDecimal(item.priceAtPurchase * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                    </div>
+                </div>
+
+                <div class="detail-row total-amount">
+                    <span class="detail-label">Tổng thành tiền:</span>
+                    <span class="detail-value price-highlight" th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Tên khách hàng:</span>
+                    <span class="detail-value" th:text="${order.customerName}"></span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Số điện thoại:</span>
+                    <span class="detail-value" th:text="${order.phone}"></span>
+                </div>
+
+                <div class="detail-row">
+                    <span class="detail-label">Địa chỉ giao hàng:</span>
+                    <span class="detail-value" th:text="${order.address}"></span>
+                </div>
+
+                <div th:if="${order.note != null and !order.note.isEmpty()}" class="detail-row">
+                    <span class="detail-label">Ghi chú:</span>
+                    <span class="detail-value" th:text="${order.note}"></span>
+                </div>
+            </div>
+
+            <p class="thank-you">
+                Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất để xác nhận đơn hàng.<br>
+                Trân trọng cảm ơn!
+            </p>
+
+            <div class="btn-group">
+                <a th:href="@{/customer/home}" class="btn btn-primary">Tiếp tục mua sắm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{customer/fragments/common_elements :: footer}"></div>
+
+</body>
+</html>

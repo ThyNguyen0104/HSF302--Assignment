@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Income Note - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/incomenote.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        /* Đã bỏ justify-content: space-between để nút Search không bị đẩy ra xa */
+        .search-area-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="main-wrapper" id="wrapper"> <div class="sidebar">
+    <div class="sidebar-header">
+        <h1>ADMIN MODE</h1>
+        <button class="toggle-btn" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-menu">
+        <a th:href="@{/admin/dashboard}" class="menu-item">
+            <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+        </a>
+        <a th:href="@{/admin/orders}" class="menu-item">
+            <i class="fas fa-shopping-cart"></i> <span>ORDERS</span>
+        </a>
+        <a th:href="@{/admin/flowers}" class="menu-item">
+            <i class="fas fa-edit"></i> <span>ADJUST FLOWERS</span>
+        </a>
+        <a th:href="@{/income/note}" class="menu-item active"> <i class="fas fa-clipboard-list"></i> <span>INCOME NOTE</span>
+        </a>
+    </div>
+</div>
+    <div class="main-content">
+
+        <div class="content-header">
+            <h2 style="margin-top: 20px;">INCOME NOTE - SUMMARY</h2>
+            <a th:href="@{/logout}" class="logout-btn-top">Đăng xuất</a>
+        </div>
+
+        <div class="summary-header" style="justify-content: flex-end; margin-top: 20px;">
+            <div class="search-area-container">
+                <form th:action="@{/income/note}" method="get" style="display: flex; gap: 5px;">
+                    <input type="text"
+                           name="keyword"
+                           th:value="${keyword}"
+                           placeholder="Search"
+                           style="padding: 5px; border: 1px solid #ccc; width: 120px;">
+
+                    <button type="submit" class="btn btn-sm btn-primary">Search</button>
+                </form>
+            </div>
+        </div>
+
+        <table class="table income-table" style="margin-top: 20px;">
+            <thead>
+            <tr>
+                <th style="width: 45%;">NAME</th>
+                <th style="width: 35%;">PHONE</th>
+                <th style="width: 20%;">AMOUNT</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${notes}">
+                <td th:text="${order.customerName}"></td>
+                <td th:text="${order.phone}"></td>
+
+                <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></td>
+
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="total-box">
+            TOTAL: <span th:text="${#numbers.formatDecimal(grandTotal, 0, 'POINT', 0, 'COMMA')}"></span> VNĐ
+        </div>
+    </div>
+</div>
+
+<script>
+    // ⭐ SAO CHÉP HÀM TOGGLE SIDEBAR ⭐
+    function toggleSidebar() {
+        document.getElementById('wrapper').classList.toggle('collapsed');
+    }
+</script>
+</body>
+</html>

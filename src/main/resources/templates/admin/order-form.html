@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết Đơn Hàng</title>
+    <link rel="stylesheet" th:href="@{/css/order-admin.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+</head>
+<body>
+<div class="main-wrapper" id="wrapper">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>ADMIN MODE</h1>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <a th:href="@{/admin/dashboard}" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/orders}" class="menu-item active">
+                <i class="fas fa-shopping-cart"></i> <span>ORDERS</span>
+            </a>
+            <a th:href="@{/admin/flowers}" class="menu-item">
+                <i class="fas fa-edit"></i> <span>ADJUST FLOWERS</span>
+            </a>
+            <a th:href="@{/income/note}" class="menu-item">
+                <i class="fas fa-clipboard-list"></i> <span>INCOME NOTE</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="content-header">
+            <h2>Chi tiết Đơn Hàng #<span th:text="${order.orderId}"></span></h2>
+            <a th:href="@{/admin/orders}" class="btn btn-secondary">Quay lại danh sách</a>
+        </div>
+
+        <div class="order-form-container">
+
+            <!-- Giữ form để Thymeleaf hiểu th:object -->
+            <form th:object="${order}" class="order-form">
+                <input type="hidden" th:field="*{orderId}" />
+
+                <!-- THÔNG TIN KHÁCH HÀNG -->
+                <div class="form-section">
+                    <h3>Thông tin khách hàng</h3>
+                    <div class="form-group">
+                        <label>Tên khách hàng:</label>
+                        <input type="text" th:field="*{customerName}" readonly class="readonly-input" />
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại:</label>
+                        <input type="text" th:field="*{phone}" readonly class="readonly-input" />
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ:</label>
+                        <textarea th:field="*{address}" readonly class="readonly-input"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ghi chú:</label>
+                        <textarea th:field="*{note}" readonly class="readonly-input"></textarea>
+                    </div>
+                </div>
+
+                <!-- THÔNG TIN ĐƠN HÀNG -->
+                <div class="form-section">
+                    <h3>Thông tin đơn hàng</h3>
+                    <div class="form-group">
+                        <label>Tổng tiền:</label>
+                        <input type="text"
+                               th:value="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"
+                               readonly />
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày đặt:</label>
+                        <input type="text" th:field="*{orderDate}" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày giao:</label>
+                        <input type="text" th:field="*{deliveryDate}" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label>Mã giao dịch:</label>
+                        <input type="text" th:field="*{transactionId}" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label>Trạng thái thanh toán:</label>
+                        <select th:field="*{paymentStatus}" disabled>
+                            <option value="PENDING">Đang chờ</option>
+                            <option value="PAID">Đã thanh toán</option>
+                            <option value="FAILED">Thất bại</option>
+                            <option value="CANCELED">Đã hủy</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- CHI TIẾT ĐƠN HÀNG -->
+                <div class="form-section">
+                    <h3>Chi tiết đơn hàng</h3>
+                    <table class="order-items-table">
+                        <thead>
+                        <tr>
+                            <th>Ảnh sản phẩm</th>
+                            <th>Sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="item : *{items}">
+                            <td>
+                                <img th:src="@{${item.selectedStyle != null ? item.selectedStyle : item.flower.imagePath}}" alt="Hình hoa" class="flower-thumb">
+                            </td>
+                            <td th:text="${item.flower.flowerName}"></td>
+                            <td th:text="${item.quantity}"></td>
+                            <td th:text="${#numbers.formatDecimal(item.priceAtPurchase, 0, 'POINT', 0, 'COMMA')} + ' đ'"></td>
+                            <td th:text="${#numbers.formatDecimal(item.priceAtPurchase * item.quantity, 0, 'POINT', 0, 'COMMA')} + ' đ'"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="total-amount-display">
+                        <strong>Tổng cộng:</strong>
+                        <span th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'POINT', 0, 'COMMA')} + ' VNĐ'"></span>
+                    </div>
+                </div>
+
+                <!-- <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Cập nhật đơn hàng</button>
+                </div> -->
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('wrapper').classList.toggle('collapsed');
+    }
+</script>
+</body>
+</html>

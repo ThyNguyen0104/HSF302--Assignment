@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh Sách Hoa - Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/flower-admin.css}">
+</head>
+<body>
+<div class="main-wrapper">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>ADMIN MODE</h1>
+            <button class="toggle-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <a th:href="@{/admin/dashboard}" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+            </a>
+            <a th:href="@{/admin/orders}" class="menu-item">
+                <i class="fas fa-shopping-cart"></i> <span>ORDERS</span>
+            </a>
+            <a th:href="@{/admin/flowers}" class="menu-item active">
+                <i class="fas fa-edit"></i> <span>ADJUST FLOWERS</span>
+            </a>
+            <a th:href="@{/income/note}" class="menu-item">
+                <i class="fas fa-clipboard-list"></i> <span>INCOME NOTE</span>
+            </a>
+        </div>
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="content-header">
+            <h2>🌸 Quản Lý Hoa</h2>
+            <a th:href="@{/logout}" class="logout-btn-top">Đăng xuất</a>
+        </div>
+
+        <div style="text-align:right; margin-bottom:15px;">
+            <a th:href="@{/admin/flowers/add}" class="btn btn-primary">+ Thêm Hoa</a>
+        </div>
+
+        <table class="flower-table">
+            <thead>
+            <tr>
+                <th style="width: 5%;">ID</th>
+                <th style="width: 15%;">Tên Hoa</th>
+                <th style="width: 10%;">Giá</th>
+                <th style="width: 10%;">Loại Hoa</th>
+                <th style="width: 15%;">Hình ảnh</th>
+                <th style="width: 10%;">Hàng tồn kho</th>
+                <th style="width: 25%;">Mô tả</th>
+                <th style="width: 10%;">Hành động</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="flower : ${flowers}">
+                <td th:text="${flower.flowerId}"></td>
+                <td th:text="${flower.flowerName}"></td>
+                <td th:text="${flower.price} + ' VNĐ'"></td>
+                <td th:text="${flower.category.categoryName}"></td>
+                <td>
+                    <img th:if="${flower.imagePath != null}"
+                         th:src="@{${flower.imagePath}}"
+                         alt="Hình ảnh Hoa" width="100">
+                    <img th:if="${flower.imagePath == null}"
+                         th:src="@{/images/no-image.jpg}"
+                         alt="Không có hình ảnh" width="100">
+                </td>
+                <td th:text="${flower.stock}"></td>
+                <td th:text="${flower.description}"></td>
+                <td>
+                    <div class="action-btns">
+                    <a th:href="@{'/admin/flowers/edit/' + ${flower.flowerId}}" class="btn btn-secondary">Sửa</a>
+                    <a th:href="@{'/admin/flowers/delete/' + ${flower.flowerId}}" class="btn btn-primary"
+                       onclick="return confirm('Bạn có chắc chắn muốn xóa hoa này không?');">Xóa</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.querySelector('.main-wrapper').classList.toggle('collapsed');
+    }
+</script>
+</body>
+</html>

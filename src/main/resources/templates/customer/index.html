@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bán Hoa Tươi - Cửa Hàng Hoa Tươi</title>
+    <link th:href="@{/css/index.css}" rel="stylesheet">
+    <link th:href="@{/css/fragments.css}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{customer/fragments/common_elements :: header}"></div>
+
+<div class="container">
+    <!-- Banner quảng cáo (slider) -->
+    <div class="banner-slider">
+        <div class="banner-slide active" style="background-image: url('/images/banner-rose.jpg'); background-size: cover; background-position: center;">
+            <div class="banner-overlay"></div>
+            <div class="banner-content">
+                <h2>🌹 Khuyến mãi đặc biệt!</h2>
+                <p>Giảm 20% cho tất cả sản phẩm hoa hồng</p>
+            </div>
+        </div>
+        <div class="banner-slide" style="background-image: url('/images/banner-delivery.jpg'); background-size: cover; background-position: center;">
+            <div class="banner-overlay"></div>
+            <div class="banner-content">
+                <h2>🌻 Giao hàng miễn phí!</h2>
+                <p>Miễn phí vận chuyển cho đơn hàng trên 500.000đ</p>
+            </div>
+        </div>
+        <div class="banner-slide" style="background-image: url('/images/banner-fresh.jpg'); background-size: cover; background-position: center;">
+            <div class="banner-overlay"></div>
+            <div class="banner-content">
+                <h2>🌸 Hoa tươi mỗi ngày!</h2>
+                <p>Cam kết hoa tươi mới, chất lượng cao</p>
+            </div>
+        </div>
+        <button class="banner-prev" onclick="changeBanner(-1)">❮</button>
+        <button class="banner-next" onclick="changeBanner(1)">❯</button>
+        <div class="banner-dots">
+            <span class="dot active" onclick="currentBanner(1)"></span>
+            <span class="dot" onclick="currentBanner(2)"></span>
+            <span class="dot" onclick="currentBanner(3)"></span>
+        </div>
+    </div>
+
+    <!-- Category Filter Section -->
+    <div class="category-filter-section">
+        <div class="category-filter">
+            <a th:href="@{/customer/home}"
+               class="category-btn"
+               th:classappend="${selectedCategoryId == null ? 'active' : ''}">
+                Tất cả
+            </a>
+            <a th:each="category : ${categories}"
+               th:href="@{/customer/home(categoryId=${category.categoryId})}"
+               class="category-btn"
+               th:classappend="${selectedCategoryId == category.categoryId ? 'active' : ''}">
+                <span th:text="${category.categoryName}"></span>
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${flowers != null and !flowers.isEmpty()}">
+        <div class="flowers-grid">
+            <div th:each="flower : ${flowers}" class="flower-card" th:onclick="|window.location.href='@{/customer/order/{id}(id=${flower.flowerId})}'|" style="cursor: pointer;">
+                <div class="flower-image">
+                    <img th:if="${flower.imagePath != null and flower.imagePath != ''}"
+                         th:src="${flower.imagePath}"
+                         alt="Flower Image" />
+                    <img th:if="${flower.imagePath == null}"
+                         th:src="@{/images/no-image.jpg}"
+                         alt="🌸" />
+                    
+                    <div class="additional-thumbnails" th:if="${flower.additionalImages != null and !flower.additionalImages.isEmpty()}" style="display: flex; gap: 5px; margin-top: 5px; overflow-x: auto; padding: 5px;">
+                        <img th:each="img : ${#strings.arraySplit(flower.additionalImages, ',')}"
+                             th:src="${img.trim()}"
+                             style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; flex-shrink: 0;"
+                             alt="Additional Image"/>
+                    </div>
+                </div>
+                <div class="flower-info">
+                    <div class="flower-name" th:text="${flower.flowerName}"></div>
+                    <div class="flower-category" th:text="${flower.category.categoryName}"></div>
+
+                    <div class="stock-status" th:classappend="${flower.stock > 0 ? 'in-stock' : 'out-of-stock'}" style="margin-top: 5px; font-size: 0.9em;">
+                        <span th:if="${flower.stock > 0}" th:text="'Còn ' + ${flower.stock} + ' sản phẩm'"></span>
+                        <span th:if="${flower.stock <= 0}">Hết hàng</span>
+                    </div>
+
+                    <div th:if="${session.loggedInUser != null}" class="price-container">
+                        <div class="flower-price-original" th:if="${flower.price > 0}">
+                            <span th:text="${#numbers.formatDecimal(flower.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+                        </div>
+                        <div class="flower-price-discount" th:text="${#numbers.formatDecimal(flower.price * 0.9, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                        <div class="discount-badge">Giảm 10% cho thành viên</div>
+                    </div>
+                    <div th:if="${session.loggedInUser == null}" class="price-container">
+                        <div class="flower-price" th:text="${#numbers.formatDecimal(flower.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${flowers == null or flowers.isEmpty()}" class="no-results">
+        <h2>😔 Không tìm thấy hoa nào</h2>
+        <p class="text-muted">Vui lòng thử lại với từ khóa khác hoặc chọn danh mục khác</p>
+        <a th:href="@{/customer/home}" class="btn btn-primary" style="margin-top: 20px;">Xem tất cả hoa</a>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{customer/fragments/common_elements :: footer}"></div>
+
+<script>
+    // Banner slider script
+    let bannerIndex = 0;
+    
+    function showBanner(n) {
+        const slides = document.getElementsByClassName("banner-slide");
+        const dots = document.getElementsByClassName("dot");
+        
+        if (n >= slides.length) bannerIndex = 0;
+        if (n < 0) bannerIndex = slides.length - 1;
+        
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].classList.remove("active");
+        }
+        for (let i = 0; i < dots.length; i++) {
+            dots[i].classList.remove("active");
+        }
+        
+        slides[bannerIndex].classList.add("active");
+        dots[bannerIndex].classList.add("active");
+    }
+    
+    function changeBanner(n) {
+        bannerIndex += n;
+        showBanner(bannerIndex);
+    }
+    
+    function currentBanner(n) {
+        bannerIndex = n - 1;
+        showBanner(bannerIndex);
+    }
+    
+    window.addEventListener('DOMContentLoaded', () => {
+        showBanner(0);
+    });
+    
+    setInterval(() => {
+        changeBanner(1);
+    }, 5000);
+</script>
+
+</body>
+</html>
