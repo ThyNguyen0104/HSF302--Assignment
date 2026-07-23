@@ -36,12 +36,12 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<Order> findByPaymentStatus(String status) {
-        return orderRepository.findOrdersByPaymentStatus(status);
+        return orderRepository.findOrdersByPaymentStatusOrderByOrderIdDesc(status);
     }
 
     @Override
     public List<Order> findAll() {
-        return orderRepository.findAll();
+        return orderRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "orderId"));
     }
 
     @Override

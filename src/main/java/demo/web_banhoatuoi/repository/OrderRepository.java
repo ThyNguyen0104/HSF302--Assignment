@@ -13,6 +13,12 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     // Find orders by customer name
     List<Order> findByCustomerName(String customerName);
 
+    // Find orders sorted by newest first
+    List<Order> findByCustomerNameOrderByOrderIdDesc(String customerName);
+
+    // Find order by transaction ID
+    Order findByTransactionId(String transactionId);
+
     // Find orders by phone
     List<Order> findByPhone(String phone);
 
@@ -23,6 +29,8 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     Order findByPhoneAndPaymentStatus(String phone, String paymentStatus);
 
     List<Order> findOrdersByPaymentStatus(String paymentStatus);
+
+    List<Order> findOrdersByPaymentStatusOrderByOrderIdDesc(String paymentStatus);
 
     // FIX: Updated query to join through OrderItem to find flower name
     @Query("SELECT DISTINCT o FROM Order o JOIN o.items oi JOIN oi.flower f WHERE " +

@@ -40,36 +40,20 @@
             </div>
         </div>
 
-        <div class="payment-methods">
-            <!-- QR Code Payment -->
-            <div class="payment-method">
-                <h3>📱 Quét mã QR</h3>
-                <div class="qr-code-container" th:if="${qrCodeBase64 != null}">
-                    <img th:src="${qrCodeBase64}" alt="VNPay QR Code">
-                </div>
-                <div class="instructions">
-                    <h4>Hướng dẫn:</h4>
-                    <ol>
-                        <li>Mở ứng dụng VNPay trên điện thoại</li>
-                        <li>Chọn chức năng quét mã QR</li>
-                        <li>Quét mã QR bên trên</li>
-                        <li>Xác nhận thanh toán</li>
-                    </ol>
-                </div>
-            </div>
-
+        <div class="payment-methods" style="display: flex; justify-content: center;">
             <!-- Payment Link -->
-            <div class="payment-method">
-                <h3>🔗 Thanh toán bằng link</h3>
-                <p class="text-muted">Nhấn vào nút bên dưới để chuyển đến trang thanh toán VNPay</p>
-                <a th:href="${paymentUrl}" target="_blank" class="btn-payment">Thanh toán ngay</a>
-                <div class="instructions">
+            <div class="payment-method" style="max-width: 500px; width: 100%;">
+                <h3>🔗 Thanh toán bằng cổng PayOS</h3>
+                <p class="text-muted">Nhấn vào nút bên dưới để chuyển đến trang thanh toán bảo mật PayOS</p>
+                <div th:if="${error}" style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 10px; border-radius: 5px; margin-top: 15px; margin-bottom: 15px; text-align: left;" th:text="${error}"></div>
+                <a th:if="${paymentUrl != null}" th:href="${paymentUrl}" class="btn-payment" style="display: block; text-align: center; background: #007bff; color: #fff; padding: 12px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 15px;">Thanh toán ngay</a>
+                <div class="instructions" style="margin-top: 20px;">
                     <h4>Hướng dẫn:</h4>
                     <ol>
-                        <li>Nhấn nút "Thanh toán ngay"</li>
-                        <li>Chọn phương thức thanh toán trên VNPay</li>
-                        <li>Hoàn tất thủ tục thanh toán</li>
-                        <li>Quay lại trang web để xác nhận</li>
+                        <li>Nhấn nút "Thanh toán ngay" để mở cổng thanh toán PayOS</li>
+                        <li>Quét mã QR hoặc nhập thông tin chuyển khoản ngân hàng</li>
+                        <li>Hoàn tất thủ tục thanh toán trên PayOS</li>
+                        <li>Đợi hệ thống chuyển hướng trở lại hoặc xác nhận tự động</li>
                     </ol>
                 </div>
             </div>

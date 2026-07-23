@@ -4,7 +4,6 @@ import demo.web_banhoatuoi.entity.*;
 import demo.web_banhoatuoi.repository.*;
 import demo.web_banhoatuoi.service.CartService;
 import demo.web_banhoatuoi.service.QRCodeService;
-import demo.web_banhoatuoi.service.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import vn.payos.PayOS;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkRequest;
+import vn.payos.model.v2.paymentRequests.CreatePaymentLinkResponse;
+import vn.payos.model.v2.paymentRequests.PaymentLink;
+import vn.payos.model.v2.paymentRequests.PaymentLinkItem;
+import vn.payos.model.v2.paymentRequests.PaymentLinkStatus;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +33,7 @@ public class CustomerController {
     @Autowired private CategoryRepository categoryRepository;
     @Autowired private OrderRepository orderRepository;
     @Autowired private CartItemRepository cartItemRepository;
-    @Autowired private VNPayService vnPayService;
+    @Autowired private PayOS payOS;
     @Autowired private QRCodeService qrCodeService;
     @Autowired private CartService cartService;
 
@@ -61,6 +66,20 @@ public class CustomerController {
         return "customer/index";
     }
 
+    @GetMapping("/search/suggestions")
+    @ResponseBody
+    public List<String> getSearchSuggestions(@RequestParam("q") String query) {
+        if (query == null || query.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+        return flowerRepository.findByFlowerNameContainingIgnoreCase(query.trim())
+                .stream()
+                .map(Flower::getFlowerName)
+                .distinct()
+                .limit(10)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/order/{flowerId}")
     @Transactional(readOnly = true)
     public String orderForm(@PathVariable int flowerId, Model model) {
@@ -87,10 +106,10 @@ public class CustomerController {
 
     @PostMapping("/order/{flowerId}")
     @Transactional
-    public String submitSingleProductOrder(@PathVariable int flowerId, @ModelAttribute Order order, @RequestParam("quantity") int quantity, @RequestParam("style") String style, Model model, HttpSession session) {
+    public String submitSingleProductOrder(@PathVariable int flowerId, @ModelAttribute Order order, @RequestParam("quantity") int quantity, @RequestParam("style") String style, Model model, HttpServletRequest request, HttpSession session) {
         Flower flower = flowerRepository.findById(flowerId).orElseThrow(() -> new RuntimeException("Flower not found"));
         Account account = (Account) session.getAttribute("loggedInUser");
-        if (account == null) return "redirect:/login";
+        if (account == null || (!"USER".equalsIgnoreCase(account.getRole()) && !"CUSTOMER".equalsIgnoreCase(account.getRole()))) return "redirect:/login";
 
         order.setCustomerName(account.getUserName());
         if (quantity > flower.getStock()) {
@@ -108,43 +127,56 @@ public class CustomerController {
 
         order.setTotalAmount(totalAmount);
         order.setPaymentStatus("PENDING");
+        order.setTransactionId(String.valueOf(System.currentTimeMillis()));
         
         OrderItem item = new OrderItem(null, order, flower, quantity, unitPrice, style);
-        order.setItems(List.of(item));
+        List<OrderItem> orderItems = new ArrayList<>();
+        orderItems.add(item);
+        order.setItems(orderItems);
 
         orderRepository.save(order);
-        return "redirect:/customer/payment/" + order.getOrderId();
+        try {
+            String checkoutUrl = getPayOSCheckoutUrl(order, request);
+            return "redirect:" + checkoutUrl;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/customer/payment/" + order.getOrderId();
+        }
     }
 
     @GetMapping("/payment/{orderId}")
-    @Transactional(readOnly = true)
-    public String paymentPage(@PathVariable int orderId, Model model, HttpSession session) {
+    @Transactional
+    public String paymentPage(@PathVariable int orderId, Model model, HttpServletRequest request, HttpSession session) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
         model.addAttribute("order", order);
         
         try {
-            String orderInfo = "Thanh toan don hang " + orderId;
-            String paymentUrl = vnPayService.createPaymentUrl(orderId, order.getTotalAmount(), orderInfo);
-            String qrCodeBase64 = qrCodeService.generateQRCodeBase64(paymentUrl, 300, 300);
-            model.addAttribute("paymentUrl", paymentUrl);
-            model.addAttribute("qrCodeBase64", qrCodeBase64);
+            if (order.getTransactionId() == null || order.getTransactionId().trim().isEmpty()) {
+                order.setTransactionId(String.valueOf(System.currentTimeMillis()));
+                orderRepository.save(order);
+            }
+            String checkoutUrl = getPayOSCheckoutUrl(order, request);
+            model.addAttribute("paymentUrl", checkoutUrl);
+            model.addAttribute("qrCodeBase64", null);
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "Không thể tạo liên kết thanh toán.");
+            model.addAttribute("error", "Không thể tạo liên kết thanh toán: " + e.getMessage());
         }
         return "customer/payment";
     }
 
-    @GetMapping("/payment/return")
+    @GetMapping("/payment/payos/return")
     @Transactional
-    public String paymentReturn(@RequestParam Map<String, String> allParams, @RequestParam(required = false) Integer orderId, Model model, HttpSession session) {
+    public String payosReturn(@RequestParam("orderId") int orderId, Model model) {
         try {
-            String responseCode = allParams.get("vnp_ResponseCode");
-            if (orderId != null) {
-                Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
-                if ("00".equals(responseCode)) {
+            Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+            long orderCode = Long.parseLong(order.getTransactionId());
+            PaymentLink paymentInfo = payOS.paymentRequests().get(orderCode);
+            
+            if (PaymentLinkStatus.PAID.equals(paymentInfo.getStatus())) {
+                if (!"PAID".equals(order.getPaymentStatus())) {
                     order.setPaymentStatus("PAID");
-                    order.setTransactionId(allParams.get("vnp_TransactionNo"));
+                    order.setTransactionId(paymentInfo.getId());
 
                     for (OrderItem item : order.getItems()) {
                         Flower flower = item.getFlower();
@@ -152,28 +184,44 @@ public class CustomerController {
                         flower.setStock(Math.max(0, newStock));
                         flowerRepository.save(flower);
                     }
-
                     orderRepository.save(order);
-                    model.addAttribute("order", order);
-                    model.addAttribute("success", true);
-                    model.addAttribute("message", "Thanh toán thành công!");
-                    return "customer/order-confirmation";
-                } else {
-                    order.setPaymentStatus("FAILED");
-                    orderRepository.save(order);
-                    model.addAttribute("order", order);
-                    model.addAttribute("success", false);
-                    model.addAttribute("message", "Thanh toán thất bại. Vui lòng thử lại.");
-                    return "customer/payment-error";
                 }
+                model.addAttribute("order", order);
+                model.addAttribute("success", true);
+                model.addAttribute("message", "Thanh toán thành công qua PayOS!");
+                return "customer/order-confirmation";
+            } else {
+                order.setPaymentStatus("FAILED");
+                orderRepository.save(order);
+                model.addAttribute("order", order);
+                model.addAttribute("success", false);
+                model.addAttribute("message", "Giao dịch không thành công hoặc chưa hoàn tất.");
+                return "customer/payment-error";
             }
-            model.addAttribute("message", "Không tìm thấy đơn hàng.");
-            return "customer/payment-error";
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("message", "Có lỗi xảy ra khi xử lý thanh toán.");
+            model.addAttribute("message", "Có lỗi xảy ra khi xử lý phản hồi PayOS.");
             return "customer/payment-error";
         }
+    }
+
+    @GetMapping("/payment/payos/cancel")
+    @Transactional
+    public String payosCancel(@RequestParam("orderId") int orderId, Model model) {
+        try {
+            Order order = orderRepository.findById(orderId).orElse(null);
+            if (order != null) {
+                order.setPaymentStatus("CANCELLED");
+                orderRepository.save(order);
+                model.addAttribute("order", order);
+            }
+            model.addAttribute("success", false);
+            model.addAttribute("message", "Bạn đã hủy thanh toán đơn hàng.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("message", "Có lỗi xảy ra khi hủy thanh toán.");
+        }
+        return "customer/payment-error";
     }
 
     @GetMapping("/order-history")
@@ -181,7 +229,7 @@ public class CustomerController {
     public String viewCustomerOrders(HttpSession session, Model model) {
         Account account = (Account) session.getAttribute("loggedInUser");
         if (account == null) return "redirect:/login";
-        model.addAttribute("orders", orderRepository.findByCustomerName(account.getUserName()));
+        model.addAttribute("orders", orderRepository.findByCustomerNameOrderByOrderIdDesc(account.getUserName()));
         model.addAttribute("username", account.getUserName());
         return "customer/order-history";
     }
@@ -256,7 +304,7 @@ public class CustomerController {
 
     @PostMapping("/place-order")
     @Transactional
-    public String placeOrder(@ModelAttribute Order order, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String placeOrder(@ModelAttribute Order order, HttpServletRequest request, HttpSession session, RedirectAttributes redirectAttributes) {
         Account account = (Account) session.getAttribute("loggedInUser");
         if (account == null) return "redirect:/login";
 
@@ -268,6 +316,7 @@ public class CustomerController {
 
         order.setCustomerName(account.getUserName());
         order.setPaymentStatus("PENDING");
+        order.setTransactionId(String.valueOf(System.currentTimeMillis()));
 
         double totalAmount = 0;
         List<OrderItem> orderItems = new ArrayList<>();
@@ -287,6 +336,42 @@ public class CustomerController {
         cartItemRepository.deleteAllById(checkoutItemIds);
         session.removeAttribute("checkoutItemIds");
 
-        return "redirect:/customer/payment/" + order.getOrderId();
+        try {
+            String checkoutUrl = getPayOSCheckoutUrl(order, request);
+            return "redirect:" + checkoutUrl;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/customer/payment/" + order.getOrderId();
+        }
+    }
+
+    private String getPayOSCheckoutUrl(Order order, HttpServletRequest request) throws Exception {
+        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+        long orderCode = Long.parseLong(order.getTransactionId());
+
+        String returnUrl = baseUrl + "/customer/payment/payos/return?orderId=" + order.getOrderId();
+        String cancelUrl = baseUrl + "/customer/payment/payos/cancel?orderId=" + order.getOrderId();
+
+        List<PaymentLinkItem> items = new ArrayList<>();
+        for (OrderItem orderItem : order.getItems()) {
+            PaymentLinkItem item = PaymentLinkItem.builder()
+                    .name(orderItem.getFlower().getFlowerName())
+                    .price((long) orderItem.getPriceAtPurchase())
+                    .quantity(orderItem.getQuantity())
+                    .build();
+            items.add(item);
+        }
+
+        CreatePaymentLinkRequest paymentData = CreatePaymentLinkRequest.builder()
+                .orderCode(orderCode)
+                .amount((long) order.getTotalAmount())
+                .description("Thanh toan DH" + order.getOrderId())
+                .returnUrl(returnUrl)
+                .cancelUrl(cancelUrl)
+                .items(items)
+                .build();
+
+        CreatePaymentLinkResponse checkoutResponse = payOS.paymentRequests().create(paymentData);
+        return checkoutResponse.getCheckoutUrl();
     }
 }

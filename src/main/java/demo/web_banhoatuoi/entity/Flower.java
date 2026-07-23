@@ -38,4 +38,21 @@ public class Flower {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
+
+    @OneToMany(mappedBy = "flower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<CartItem> cartItems;
+
+    @OneToMany(mappedBy = "flower", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<OrderItem> orderItems;
+
+    public Flower(int flowerId, String flowerName, double price, String imagePath, String description, int stock, String additionalImages, Category category) {
+        this.flowerId = flowerId;
+        this.flowerName = flowerName;
+        this.price = price;
+        this.imagePath = imagePath;
+        this.description = description;
+        this.stock = stock;
+        this.additionalImages = additionalImages;
+        this.category = category;
+    }
 }

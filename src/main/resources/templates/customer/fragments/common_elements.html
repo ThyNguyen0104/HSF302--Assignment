@@ -18,15 +18,77 @@
             </div>
 
             <!-- Search Form in Header -->
-            <div class="header-search-section">
+            <div class="header-search-section" style="position: relative;">
                 <form th:action="@{/customer/home}" method="get" class="header-search-form">
                     <input type="text"
+                           id="searchInput"
                            name="search"
                            class="header-search-input"
                            placeholder="Tìm kiếm hoa..."
-                           th:value="${search}">
+                           th:value="${search}"
+                           autocomplete="off">
                     <button type="submit" class="btn btn-primary header-search-btn">Tìm kiếm</button>
                 </form>
+                <!-- Autocomplete Dropdown -->
+                <div id="searchSuggestions" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-top: none; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 0 0 5px 5px; max-height: 250px; overflow-y: auto;"></div>
+                <script>
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const input = document.getElementById("searchInput");
+                        const list = document.getElementById("searchSuggestions");
+                        let debounceTimeout = null;
+
+                        if (!input || !list) return;
+
+                        input.addEventListener("input", function() {
+                            clearTimeout(debounceTimeout);
+                            const query = input.value.trim();
+                            if (query.length < 1) {
+                                list.innerHTML = "";
+                                list.style.display = "none";
+                                return;
+                            }
+                            debounceTimeout = setTimeout(() => {
+                                fetch(`/customer/search/suggestions?q=${encodeURIComponent(query)}`)
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        list.innerHTML = "";
+                                        if (data && data.length > 0) {
+                                            data.forEach(item => {
+                                                const div = document.createElement("div");
+                                                div.textContent = item;
+                                                div.style.padding = "10px 15px";
+                                                div.style.cursor = "pointer";
+                                                div.style.borderBottom = "1px solid #f0f0f0";
+                                                div.addEventListener("click", function() {
+                                                    input.value = item;
+                                                    list.innerHTML = "";
+                                                    list.style.display = "none";
+                                                    input.form.submit();
+                                                });
+                                                div.addEventListener("mouseover", function() {
+                                                    div.style.background = "#f5f5f5";
+                                                });
+                                                div.addEventListener("mouseout", function() {
+                                                    div.style.background = "#fff";
+                                                });
+                                                list.appendChild(div);
+                                            });
+                                            list.style.display = "block";
+                                        } else {
+                                            list.style.display = "none";
+                                        }
+                                    })
+                                    .catch(err => console.error("Error fetching suggestions:", err));
+                            }, 300);
+                        });
+
+                        document.addEventListener("click", function(e) {
+                            if (!input.contains(e.target) && !list.contains(e.target)) {
+                                list.style.display = "none";
+                            }
+                        });
+                    });
+                </script>
             </div>
 
             <div class="user-actions-container">

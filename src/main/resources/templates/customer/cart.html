@@ -14,7 +14,8 @@
 
 <div class="container">
     <div class="cart-container">
-        <h1>🛒 Giỏ hàng của bạn</h1>
+        <div th:if="${errorMessage}" style="background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; padding: 10px; border-radius: 5px; margin-bottom: 15px;" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" style="background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 10px; border-radius: 5px; margin-bottom: 15px;" th:text="${successMessage}"></div>
 
         <div th:if="${cartItems == null or cartItems.isEmpty()}" class="empty-cart">
             <p>Giỏ hàng của bạn đang trống.</p>
@@ -24,7 +25,7 @@
         <form th:if="${cartItems != null and !cartItems.isEmpty()}" th:action="@{/customer/checkout}" method="post">
             <div class="cart-header">
                 <div class="select-all-container">
-                    <input type="checkbox" id="selectAll" onclick="toggleAll(this)">
+                    <input type="checkbox" id="selectAll" onclick="toggleAll(this)" checked="checked">
                     <label for="selectAll">Chọn tất cả</label>
                 </div>
                 <span>Sản phẩm</span>
@@ -39,7 +40,7 @@
                      th:with="unitPrice=${session.loggedInUser != null ? item.flower.price * 0.9 : item.flower.price},
                                 itemTotal=${unitPrice * item.quantity}">
                     <div class="cart-item-select">
-                        <input type="checkbox" name="selectedItems" th:value="${item.id}" class="item-checkbox" onclick="updateSelectAll()">
+                        <input type="checkbox" name="selectedItems" th:value="${item.id}" class="item-checkbox" onclick="updateSelectAll()" checked="checked">
                     </div>
                     <div class="cart-item-product">
                         <img th:src="@{${item.selectedStyle}}" alt="Flower Style Image">
