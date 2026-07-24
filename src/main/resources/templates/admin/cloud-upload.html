@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📸 Upload Ảnh Cloud – Ban Hoa Tươi Admin</title>
+  <meta name="description" content="Tải ảnh hoa lên cloud storage với drag & drop. Hỗ trợ Cloudinary và local storage.">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" th:href="@{/css/cloud-upload.css}">
+</head>
+<body>
+
+<!-- ===================== TOAST AREA ===================== -->
+<div class="toast-area" id="toastArea" aria-live="polite"></div>
+
+<!-- ===================== LIGHTBOX ===================== -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+  <img id="lightboxImg" src="" alt="Xem ảnh lớn">
+</div>
+
+<!-- ===================== MAIN WRAPPER ===================== -->
+<div class="main-wrapper" id="mainWrapper">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" aria-label="Sidebar Navigation">
+    <div class="sidebar-header">
+      <h1>ADMIN MODE</h1>
+      <button class="toggle-btn" onclick="toggleSidebar()" aria-label="Thu gọn sidebar">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+    <div class="sidebar-menu">
+      <a th:href="@{/admin/dashboard}" class="menu-item">
+        <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+      </a>
+      <a th:href="@{/admin/orders}" class="menu-item">
+        <i class="fas fa-shopping-cart"></i><span>Orders</span>
+      </a>
+      <a th:href="@{/admin/flowers}" class="menu-item">
+        <i class="fas fa-seedling"></i><span>Adjust Flowers</span>
+      </a>
+      <a th:href="@{/income/note}" class="menu-item">
+        <i class="fas fa-clipboard-list"></i><span>Income Note</span>
+      </a>
+      <a th:href="@{/admin/cloud-upload}" class="menu-item active">
+        <i class="fas fa-cloud-upload-alt"></i><span>Cloud Upload</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- HEADER -->
+    <div class="content-header">
+      <div class="page-title">
+        <div class="title-icon">☁️</div>
+        <div>
+          <h2>Cloud Storage Upload</h2>
+          <p>Upload ảnh hoa & sản phẩm lên cloud – nhanh, bảo mật, tự động tối ưu</p>
+        </div>
+      </div>
+      <a th:href="@{/logout}" class="logout-btn-top">
+        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+      </a>
+    </div>
+
+    <!-- GRID: Upload Panel + Gallery -->
+    <div class="upload-grid">
+
+      <!-- ===== LEFT: UPLOAD PANEL ===== -->
+      <div>
+        <div class="card">
+          <h3 class="card-title">
+            <i class="fas fa-cloud-upload-alt"></i>
+            📸 Upload Ảnh Tour / Sản Phẩm
+          </h3>
+
+          <!-- DROPZONE -->
+          <div class="dropzone" id="dropzone"
+               role="button" tabindex="0"
+               aria-label="Khu vực kéo thả ảnh. Nhấn hoặc kéo thả file vào đây">
+            <span class="dz-icon">🌸</span>
+            <p class="dz-title">Kéo & Thả ảnh vào đây</p>
+            <p class="dz-sub">
+              Hoặc nhấn <strong>Chọn File</strong> để duyệt từ máy tính<br>
+              Tối đa <strong>10MB</strong> mỗi ảnh
+            </p>
+            <div class="dz-formats">
+              <span class="format-badge">JPG</span>
+              <span class="format-badge">PNG</span>
+              <span class="format-badge">WEBP</span>
+              <span class="format-badge">GIF</span>
+              <span class="format-badge">AVIF</span>
+            </div>
+            <button type="button" class="btn-browse" id="btnBrowse">
+              <i class="fas fa-folder-open"></i> Chọn File
+            </button>
+            <input type="file" id="fileInput" accept="image/*" aria-label="Chọn ảnh để upload">
+          </div>
+
+          <!-- SELECTED FILE PREVIEW -->
+          <div class="selected-file-info" id="selectedFileInfo" role="status">
+            <img id="previewThumb" class="file-thumb" src="" alt="Preview ảnh đã chọn">
+            <div class="file-meta">
+              <div class="file-name" id="fileName">–</div>
+              <div class="file-size" id="fileSize">–</div>
+            </div>
+            <button type="button" class="btn-clear-file" id="btnClearFile" title="Xóa file" aria-label="Xóa file đã chọn">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- FOLDER SELECT -->
+          <div class="folder-group">
+            <label for="folderSelect"><i class="fas fa-folder"></i> Thư mục đích</label>
+            <select id="folderSelect" class="folder-select">
+              <option value="flowers">🌺 flowers – Ảnh sản phẩm hoa</option>
+              <option value="tours">🗺️ tours – Ảnh tour du lịch</option>
+              <option value="banners">🖼️ banners – Ảnh banner trang chủ</option>
+              <option value="avatars">👤 avatars – Ảnh đại diện</option>
+              <option value="misc">📁 misc – Khác</option>
+            </select>
+          </div>
+
+          <!-- UPLOAD BUTTON -->
+          <button type="button" class="btn-upload" id="btnUpload" disabled>
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span id="btnUploadText">Chọn ảnh trước để upload</span>
+          </button>
+
+          <!-- PROGRESS BAR -->
+          <div class="progress-wrap" id="progressWrap">
+            <div class="progress-label">
+              <span id="progressText">Đang upload...</span>
+              <span id="progressPct">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULT CARD -->
+        <div class="result-card" id="resultCard">
+          <div class="result-header">
+            <i class="fas fa-check-circle"></i>
+            <span id="resultMsg">Upload thành công!</span>
+          </div>
+
+          <div class="result-preview">
+            <img id="resultImg" src="" alt="Ảnh đã upload">
+          </div>
+
+          <div class="url-row">
+            <span class="url-text" id="resultUrl">–</span>
+            <button class="btn-copy" id="btnCopy" title="Sao chép URL">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="mval" id="metaSource">–</div>
+              <div class="mlabel">Nguồn</div>
+            </div>
+            <div class="meta-item">
+              <div class="mval" id="metaSize">–</div>
+              <div class="mlabel">Kích thước</div>
+            </div>
+            <div class="meta-item">
+              <div class="mval" id="metaFormat">–</div>
+              <div class="mlabel">Định dạng</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== RIGHT: GALLERY + TIPS ===== -->
+      <div>
+
+        <!-- GALLERY -->
+        <div class="card gallery-panel" style="margin-bottom: 20px;">
+          <h3 class="card-title">
+            <i class="fas fa-images"></i>
+            Ảnh vừa upload
+            <span id="galleryCount" style="margin-left:auto;font-size:0.78rem;color:var(--text-muted);font-weight:500;">0 ảnh</span>
+          </h3>
+
+          <div class="gallery-empty" id="galleryEmpty">
+            <i class="fas fa-photo-film"></i>
+            <p>Chưa có ảnh nào trong phiên này</p>
+          </div>
+
+          <div class="gallery-grid" id="galleryGrid"></div>
+        </div>
+
+        <!-- TIPS -->
+        <div class="card">
+          <h3 class="card-title"><i class="fas fa-lightbulb"></i> Hướng dẫn</h3>
+          <ul class="tips-list">
+            <li>
+              <i class="fas fa-check"></i>
+              <span>Kéo thả ảnh vào vùng upload hoặc nhấn <strong>Chọn File</strong>.</span>
+            </li>
+            <li>
+              <i class="fas fa-check"></i>
+              <span>Hỗ trợ <strong>JPG, PNG, WEBP, GIF, AVIF</strong>. Tối đa <strong>10MB</strong>.</span>
+            </li>
+            <li>
+              <i class="fas fa-check"></i>
+              <span>Chọn <strong>thư mục đích</strong> để phân loại ảnh trước khi upload.</span>
+            </li>
+            <li>
+              <i class="fas fa-cloud"></i>
+              <span>Upload lên <strong>Cloudinary</strong> nếu đã cấu hình API key trong <code>application.properties</code>.</span>
+            </li>
+            <li>
+              <i class="fas fa-server"></i>
+              <span>Chưa có API key? Ảnh sẽ lưu <strong>local server</strong> và có thể truy cập ngay.</span>
+            </li>
+            <li>
+              <i class="fas fa-link"></i>
+              <span>Sau upload, <strong>copy URL</strong> và dán vào form thêm hoa để gán ảnh cho sản phẩm.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ==================== SCRIPTS ==================== -->
+<script th:inline="javascript">
+  /*<![CDATA[*/
+
+  // ---- STATE ----
+  let selectedFile = null;
+  let uploadedCount = 0;
+
+  // ---- DOM REFS ----
+  const dropzone      = document.getElementById('dropzone');
+  const fileInput     = document.getElementById('fileInput');
+  const btnBrowse     = document.getElementById('btnBrowse');
+  const btnUpload     = document.getElementById('btnUpload');
+  const btnUploadText = document.getElementById('btnUploadText');
+  const btnClearFile  = document.getElementById('btnClearFile');
+  const btnCopy       = document.getElementById('btnCopy');
+  const selectedInfo  = document.getElementById('selectedFileInfo');
+  const previewThumb  = document.getElementById('previewThumb');
+  const fileNameEl    = document.getElementById('fileName');
+  const fileSizeEl    = document.getElementById('fileSize');
+  const folderSelect  = document.getElementById('folderSelect');
+  const progressWrap  = document.getElementById('progressWrap');
+  const progressBar   = document.getElementById('progressBar');
+  const progressPct   = document.getElementById('progressPct');
+  const progressText  = document.getElementById('progressText');
+  const resultCard    = document.getElementById('resultCard');
+  const resultMsg     = document.getElementById('resultMsg');
+  const resultImg     = document.getElementById('resultImg');
+  const resultUrl     = document.getElementById('resultUrl');
+  const metaSource    = document.getElementById('metaSource');
+  const metaSize      = document.getElementById('metaSize');
+  const metaFormat    = document.getElementById('metaFormat');
+  const galleryGrid   = document.getElementById('galleryGrid');
+  const galleryEmpty  = document.getElementById('galleryEmpty');
+  const galleryCount  = document.getElementById('galleryCount');
+  const lightbox      = document.getElementById('lightbox');
+  const lightboxImg   = document.getElementById('lightboxImg');
+  const lightboxClose = document.getElementById('lightboxClose');
+  const toastArea     = document.getElementById('toastArea');
+
+  // ---- SIDEBAR ----
+  function toggleSidebar() {
+    document.getElementById('mainWrapper').classList.toggle('collapsed');
+  }
+
+  // ---- DROPZONE EVENTS ----
+  dropzone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropzone.classList.add('drag-over');
+  });
+
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileSelect(file);
+  });
+
+  dropzone.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') fileInput.click();
+  });
+
+  btnBrowse.addEventListener('click', e => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+
+  dropzone.addEventListener('click', e => {
+    if (e.target === dropzone || e.target.classList.contains('dz-icon') ||
+        e.target.classList.contains('dz-title') || e.target.classList.contains('dz-sub')) {
+      fileInput.click();
+    }
+  });
+
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) handleFileSelect(e.target.files[0]);
+  });
+
+  btnClearFile.addEventListener('click', clearFile);
+
+  // ---- HANDLE FILE SELECT ----
+  function handleFileSelect(file) {
+    // Validate type
+    if (!file.type.startsWith('image/')) {
+      showToast('error', '❌ Chỉ chấp nhận file ảnh!');
+      return;
+    }
+    // Validate size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('error', '❌ File quá lớn! Tối đa 10MB.');
+      return;
+    }
+
+    selectedFile = file;
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = ev => {
+      previewThumb.src = ev.target.result;
+      selectedInfo.classList.add('show');
+    };
+    reader.readAsDataURL(file);
+
+    fileNameEl.textContent = file.name;
+    fileSizeEl.textContent = formatBytes(file.size);
+
+    btnUpload.disabled = false;
+    btnUploadText.textContent = `Upload "${truncate(file.name, 28)}"`;
+
+    // Hide previous result
+    resultCard.classList.remove('show');
+  }
+
+  function clearFile() {
+    selectedFile = null;
+    fileInput.value = '';
+    selectedInfo.classList.remove('show');
+    previewThumb.src = '';
+    btnUpload.disabled = true;
+    btnUploadText.textContent = 'Chọn ảnh trước để upload';
+    progressWrap.classList.remove('show');
+    progressBar.style.width = '0%';
+  }
+
+  // ---- UPLOAD ----
+  btnUpload.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    btnUpload.disabled = true;
+    progressWrap.classList.add('show');
+    progressText.textContent = 'Đang chuẩn bị...';
+    setProgress(10);
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('folder', folderSelect.value);
+
+    // Simulate initial progress while actual XHR uploads
+    let fakeProgress = 15;
+    const fakeTimer = setInterval(() => {
+      if (fakeProgress < 85) {
+        fakeProgress += Math.random() * 8;
+        setProgress(Math.min(fakeProgress, 85));
+        progressText.textContent = 'Đang upload lên cloud...';
+      }
+    }, 300);
+
+    try {
+      const resp = await fetch('/admin/cloud-upload/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      clearInterval(fakeTimer);
+      setProgress(95);
+
+      const data = await resp.json();
+      setProgress(100);
+
+      if (data.success) {
+        progressText.textContent = '✅ Hoàn tất!';
+        showUploadResult(data);
+        addToGallery(data.url, data.source, selectedFile);
+        showToast('success', data.message || '✅ Upload thành công!');
+        clearFile();
+      } else {
+        progressText.textContent = '❌ Thất bại';
+        showToast('error', data.message || '❌ Upload thất bại!');
+        btnUpload.disabled = false;
+      }
+
+    } catch (err) {
+      clearInterval(fakeTimer);
+      setProgress(0);
+      progressText.textContent = '❌ Lỗi kết nối';
+      showToast('error', '❌ Không thể kết nối tới server!');
+      btnUpload.disabled = false;
+    }
+  });
+
+  // ---- SHOW RESULT ----
+  function showUploadResult(data) {
+    resultCard.classList.add('show');
+    resultMsg.textContent = data.message;
+    resultImg.src = data.url;
+    resultUrl.textContent = data.url;
+    metaSource.textContent = data.source === 'cloudinary' ? '☁️ Cloudinary' : '🖥️ Local';
+    metaSize.textContent = formatBytes(data.bytes || 0);
+    metaFormat.textContent = (data.format || 'image').toUpperCase();
+
+    resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ---- COPY URL ----
+  btnCopy.addEventListener('click', () => {
+    const url = resultUrl.textContent;
+    if (!url || url === '–') return;
+
+    navigator.clipboard.writeText(url).then(() => {
+      btnCopy.innerHTML = '<i class="fas fa-check"></i> Đã copy!';
+      btnCopy.classList.add('copied');
+      setTimeout(() => {
+        btnCopy.innerHTML = '<i class="fas fa-copy"></i> Copy';
+        btnCopy.classList.remove('copied');
+      }, 2500);
+    });
+  });
+
+  // ---- GALLERY ----
+  function addToGallery(url, source, file) {
+    uploadedCount++;
+    galleryCount.textContent = uploadedCount + ' ảnh';
+    galleryEmpty.style.display = 'none';
+
+    const item = document.createElement('div');
+    item.className = 'gallery-item';
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = file ? file.name : 'Ảnh upload';
+
+    const overlay = document.createElement('div');
+    overlay.className = 'gallery-overlay';
+
+    const viewIcon = document.createElement('i');
+    viewIcon.className = 'fas fa-search-plus';
+    viewIcon.title = 'Xem lớn';
+    viewIcon.addEventListener('click', () => openLightbox(url));
+
+    overlay.appendChild(viewIcon);
+
+    const badge = document.createElement('span');
+    badge.className = `source-badge ${source === 'cloudinary' ? 'cloud' : 'local'}`;
+    badge.textContent = source === 'cloudinary' ? '☁ Cloud' : '🖥 Local';
+
+    item.appendChild(img);
+    item.appendChild(overlay);
+    item.appendChild(badge);
+
+    // Insert newest first
+    if (galleryGrid.firstChild) {
+      galleryGrid.insertBefore(item, galleryGrid.firstChild);
+    } else {
+      galleryGrid.appendChild(item);
+    }
+  }
+
+  // ---- LIGHTBOX ----
+  function openLightbox(src) {
+    lightboxImg.src = src;
+    lightbox.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+  function closeLightbox() {
+    lightbox.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  // ---- TOAST ----
+  function showToast(type, message) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    const icon = type === 'success' ? '✅' : '❌';
+    toast.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-msg">${message}</span>`;
+    toastArea.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(60px)';
+      toast.style.transition = 'all 0.4s ease';
+      setTimeout(() => toast.remove(), 400);
+    }, 4000);
+  }
+
+  // ---- HELPERS ----
+  function setProgress(pct) {
+    progressBar.style.width = pct + '%';
+    progressPct.textContent = Math.round(pct) + '%';
+  }
+
+  function formatBytes(bytes) {
+    if (!bytes) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  function truncate(str, n) {
+    return str.length > n ? str.substring(0, n) + '...' : str;
+  }
+
+  /*]]>*/
+</script>
+</body>
+</html>
